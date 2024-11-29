@@ -1,0 +1,7 @@
+Explain the term Garbage Collection as it relates to the Java environment
+
+Garbage Collection in java is the process of reclaiming the runtime unused memory
+by destorying the unused objects. 
+
+To perform this objective you can use methods like free() and delete() but these are 
+only available in  C and C++ in java it happens automatically

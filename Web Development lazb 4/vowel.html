@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script>
+
+
+        // Variables 
+        var x;
+        var result;
+
+        // Using the isVowel you using the x variable to list the vowels
+        function isVowel(x) {
+
+
+            var result;
+            // Using the if statement is shows the list of vowels and if its in the list of vowels it returns true else false 
+            if (x == "A" || x == "E" || x == "I" || x == "O" || x == "U") {
+                result = true;
+            }
+            else {
+                result = false;
+            }
+            return result;
+        }
+        var input;
+
+        // Prompts to the system to enter in a character
+        input = prompt("Enter a character");
+
+        // Puts the input to upperCase
+        input = input.toUpperCase();
+
+        // if what is inputted is in the if statement it prints out the vowel 
+        if (input.length == 1) {
+            isVowel(input);
+        }
+        else {
+            while (input.length != 1) {
+                prompt("Enter a character  ");
+                if (input.length == 1) {
+                    isVowel(input);
+                }
+            }
+        }
+        alert(isVowel(input));
+
+
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>

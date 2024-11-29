@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+
+<body>
+    <p id="grades"></p>
+
+    <script>
+
+        // Variables 
+        var x;
+
+        //Prompts out a message A, B, C, D, E
+        var x = prompt("Enter in a grade (A, B, C, D or E)");
+
+        // Uses the switch statement to ask for any of these letters only.
+        // If its not the letter it prints out an unknown grade letter.
+
+        switch (x) {
+
+            case "A":
+                alert("Excellent");
+                break;
+
+            case "B":
+                alert("Pretty Good");
+                break;
+
+            case "C":
+                alert("Passed");
+                break;
+
+            case "D":
+                alert("Not so Good");
+                break;
+
+            case "E":
+                alert("Failed");
+                break;
+
+            default:
+
+                x = alert("Unknown Grade......");
+        }
+
+
+    </script>
+</body>
+
+</html>

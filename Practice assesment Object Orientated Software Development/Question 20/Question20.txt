@@ -1,0 +1,6 @@
+Utility methods are typically
+a. Public
+b. Private
+c. Protected
+
+B. Private

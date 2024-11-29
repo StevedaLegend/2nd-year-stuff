@@ -1,0 +1,15 @@
+What is a constuctor?
+
+A constuctor is a class method used to call the main driver program so
+you can debug the program itself an example would be 
+
+public Steve(String name, int age, String address, int phonenumber){
+
+    this.name = name; 
+    this.age = age;
+    this.address = address;
+    this.phonenumber = phonenumber;
+}
+
+You can use this constuctor to link to a debugger in a class by calling the constructor
+name.

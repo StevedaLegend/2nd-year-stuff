@@ -1,0 +1,4 @@
+#
+#Sat May 03 17:37:49 EDT 2014
+LinkedWorlds=
+ServerName=Minecraft Server

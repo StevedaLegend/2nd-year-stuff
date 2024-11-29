@@ -1,0 +1,13 @@
+---------------------------------------------
+SETU = Nore Building, Barrow Centre, LRC
+---------------------------------------------
+Nore Building = Barrow Centre, LRC, SETU
+--------------------------------------------
+Barrow Centre = Nore Building, LRC, SETU
+----------------------------
+LRC = Barrow Centre, Nore Building, SETU
+----------------------------
+Bus Station = Petrol Station
+----------------------------
+Petrol station = Bus Station
+----------------------------

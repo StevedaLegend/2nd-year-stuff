@@ -1,0 +1,50 @@
+ .bottomleft {
+
+    position: absolute;
+    bottom: 0%;
+    left: 0%;
+    color: red;
+    bottom: 20px;
+    left:20px;
+  }
+  
+  .topleft {
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    color: red;
+  }
+  
+  .topright {
+    position: absolute;
+    top: 0%;
+    right: 0%;
+    color: red;
+  }
+  
+  .bottomright {
+    position: absolute;
+    bottom: 0%;
+    right: 0%;
+    color: red;
+    bottom: 20px;
+    right:20px;
+  }
+  
+  .middle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: red;
+  }
+  .box{
+
+    position: relative;
+    text-align: center;
+    color:black;
+  }
+
+.border{
+
+    border:2px red;
+}

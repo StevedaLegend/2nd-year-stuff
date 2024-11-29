@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+        <title>Form Demo - Task 2</title>
+
+
+</head>
+
+<head>
+
+
+
+
+        <link rel="stylesheet" href="Task2.css">
+
+        <img src="register-button-blue-hi.png" alt="Registered" width="600" height="400">
+
+
+</head>
+
+<body>
+
+        <body background="true-blue-solid-color-background.jpg">
+
+                <form>
+
+                        <h2>Student Form</h2>
+                        <div class="inputbox">
+                                <label for="FIrstname"> First Name</label>
+                                <input type="text" name="firstname" id="firstname" />
+                        </div>
+                        <div class="inputbox">
+                                <label for="surname">Surname</label>
+                                <input type="text" name="surname" id="surname" />
+                        </div>
+
+
+                        <div class="radiobox">
+                                <label>Registered?</label><br />
+                                <input type="radio" name="registered" id="registered" value="Regy" />
+                                <label for="registered">Registered</label><br />
+                                <input type="radio" name="registered" id="notregistered" value="Regn" />
+                                <label for="notregistered">Not Registered</label><br />
+                        </div>
+
+                        <div class="dropdown">
+                                Select Year:
+                                <select name="schoolyear">
+                                        <option value="firstyear">First Year</option>
+                                        <option value="secondyear">Second Year</option>
+                                        <option value="thirdyear">Third Year</option>
+                                        <option value="fourthyear">Fourth Year</option>
+                        </div>
+
+
+                        <div class="checkbox1">
+                                Select the course (s) taken:
+                                <div class="courses">
+                                        <input type="checkbox" name="course" id="C1" value="Deg in Soft Eng">
+                                        <label for="C1">Degree in Software Engineering</label>
+                                        <div class="courses">
+                                                <input type="checkbox" name="course" id="C2" value="Deg in IT Mgt">
+                                                <label for="C2">Degree in IT Management</label>
+                                                <div class="courses">
+                                                        <input type="checkbox" name="course" id="C3"
+                                                                value="Deg in IT Cyber">
+                                                        <label for="C3">Degree in Cyber Security</label>
+                                                        <div class="courses">
+                                                                <input type="checkbox" name="course" id="C4"
+                                                                        value="Deg in IT Comp Science">
+                                                                <label for="C3">Degree in Computer Science</label>
+                                                        </div>
+                                                        <div>
+
+                                                                <div class="myButton">
+                                                                        <input type="submit" value="Send Form"
+                                                                                name="submit" /><br><br>
+                                                                        <input type="reset" value="Clear Form"
+                                                                                name="reset" />
+                                                                </div>
+                </form>
+        </body>
+
+</html>

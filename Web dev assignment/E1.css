@@ -1,0 +1,22 @@
+.image1 {
+    float: right;
+    border: 5px double blue;
+    padding: 1px;
+    margin: 1px;
+
+}
+
+.image2 {
+    float: left;
+    border: 5px double blue;
+    padding: 1px;
+    margin: 1px;
+}
+ 
+.border1{
+    border: 5px solid black;
+}
+
+.border2{
+    border: 5px solid black;
+}

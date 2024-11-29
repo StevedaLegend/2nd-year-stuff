@@ -1,0 +1,19 @@
+body {
+
+    background-image: url(Sky\ back.png);
+}
+
+h2{
+
+    text-align: center;
+}
+
+p{
+    text-align: center;
+}
+
+
+fieldset {
+
+    border: 5px solid red;
+}

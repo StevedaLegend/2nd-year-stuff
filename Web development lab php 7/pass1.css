@@ -1,0 +1,49 @@
+body {
+
+	background-image: url(Background.png);
+	background-repeat: no-repeat;
+	background-size: 1920px 1090px;
+}
+form {
+	margin: auto;
+	width: 40%;
+	height: 50%;
+	border: solid blue;
+	text-align: centre;
+	}
+.nologin {
+width: 80%;
+margin: 40px auto;
+border: 3px solid red;
+background: lightblue;
+font-size: 80px;
+font-weight: 800;
+font-family: monospace;
+font-variant: small-caps;
+text-align: center;
+color: blue;
+padding: 40;
+}
+h1 {
+font-variant: normal;
+color: blue;
+text-align: center;
+}
+h3 {
+	font-size: 2em;
+	color: red;
+	text-align: center;
+	}
+	h2 {
+	font-size: 1.5em;
+	color: red;
+	text-align: center;
+	}
+.errorstyle { 
+    font-size:2em;
+	color:red;
+	text-align:center;
+	
+}
+label { position: absolute; text-align:right; width:130px; }
+input{ margin-left: 140px; }

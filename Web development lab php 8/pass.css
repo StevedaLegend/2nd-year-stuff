@@ -1,0 +1,63 @@
+body {
+
+	background-image: url(Background.png);
+	background-repeat: no-repeat;
+	background-size: 1920px 1090px;
+}
+
+form {
+    margin: auto;
+    width: 40%;
+    height: 50%;
+    border: solid black;
+    text-align: centre;
+}
+
+.nologin {
+    width: 80%;
+    margin: 40px auto;
+    border: 3px solid blue;
+    background: yellow;
+    font-size: 80px;
+    font-weight: 800;
+    font-family: monospace;
+    font-variant: small-caps;
+    text-align: center;
+    color: black;
+    padding: 40;
+}
+
+h1 {
+    font-variant: normal;
+    color: black;
+    text-align: center;
+}
+
+h3 {
+    font-size: 2em;
+    color: lightblue;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.5em;
+    color: darkred;
+    text-align: center;
+}
+
+.errorstyle {
+    font-size: 2em;
+    color: darkblue;
+    text-align: center;
+
+}
+
+label {
+    position: absolute;
+    text-align: right;
+    width: 130px;
+}
+
+input {
+    margin-left: 140px;
+}

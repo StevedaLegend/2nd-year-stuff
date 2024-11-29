@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Employee Form</title>
+
+<body style="background-color:black"></body>
+
+</head>
+
+<link rel="stylesheet" href="3A.css">
+
+<body>
+
+
+    <fieldset>
+        <form action="">
+
+
+            <!--The code Required asks for required informatio before you submit the form and the title is what it asks the user what is required-->
+            <h2>
+                <P style="color:whitesmoke">Employee Form
+            </h2>
+            <div class="inputbox">
+                <label for="EmployeeID">
+                    <P style="color:whitesmoke">EmployeeID (Required):
+                </label>
+                <input type="text" name="EmployeeID" id="EmployeeID" required pattern="[A-Z] {1} [0-9] {6}" title="One capital letter followed by 6 digits."/>
+            </div>
+            <div class="inputbox">
+                <label for="Name">
+                    <P style="color:whitesmoke">Name (Required):
+                </label>
+                <input type="text" name="Name" id="Name" required pattern="[A-Z]" title="Text only" />
+            </div>
+
+            <div class="inputbox">
+                <label for="Address">
+                    <P style="color:whitesmoke"> Address (Required):
+                </label>
+                <input type="text" name="Address" id="Address" required="[A-Z]" title="Text only additional numbers" />
+            </div>
+
+            <div class="inputbox">
+                <label for="Eircode">
+                    <P style="color:whitesmoke"> Eircode:
+                </label>
+                <input type="text" name="Eircode" id="Eircode" required
+                    pattern="[ABCDEFGHIJKLMNPQRSTUVWXYZ] {7} [0-9]" title="7 characters. Capital letters and numbers only. Do not allow the letter ‘O’ to be included. E.g. A65 F4E2." />
+            </div>
+            <div class="inputbox">
+                <label for="PPS number">
+                    <P style="color:whitesmoke"> PPS number (Required):
+                </label>
+            <div class="inputbox">
+                <input type="number" name="PPS number" id="PPS number" required pattern="[0-9] {7} [A-Z] {1} {2} " title="7 digits followed by one or two capital letters"/>
+            </div>
+
+            <div class="inputbox">
+                <label for="Email address">
+                    <P style="color:whitesmoke"> Email address (Required):
+                </label>
+                <input type="email" name="Email address" id="Email address" required title="Standard Email conventions." />
+            </div>
+
+            <div class="inputbox">
+                <label for="Date of birth">
+                    <P style="color:whitesmoke"> Date of birth:
+                </label>
+                <input type="date" name="Date of birth" id="Date of birth" value="2022-11-09" min="2022-01-01"
+                    max="2022-12-31" required  />
+            </div>
+
+            <div class="inputbox">
+                <label for="Phone number">
+                    <P style="color:whitesmoke"> Phone number:
+                </label>
+                <input type="number" name="Phone number" id="Phone number" required pattern="[“(“, “)”,]  " />
+            </div>
+            <div class="myButton">
+                <input type="submit" value="Send Form" name="submit" /><br><br>
+
+                <div class="myButton">
+                    <input type="reset" value="Clear Form" name="reset" />
+                </div>
+            </div>
+    </fieldset>
+
+
+
+
+
+    </form>
+</body>
+
+</html>

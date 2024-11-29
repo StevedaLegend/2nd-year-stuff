@@ -1,0 +1,5 @@
+What does overload mean in java? 
+
+
+Overloading means that the same method is being used more than once in the same 
+class this can cause the class to break. 

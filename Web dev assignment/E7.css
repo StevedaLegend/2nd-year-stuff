@@ -1,0 +1,65 @@
+.header{
+
+  position: fixed;
+  top: 0%;
+  text-align: center;
+  width:100%;
+  background-color: aqua;
+  color: black;
+  font-size: 40px;
+}
+
+.king_of_diamonds{
+
+  position: absolute;
+  top: 50%;
+  left: 49%;
+  top: 100px;
+  z-index: 1;
+
+}
+
+.queen_of_diamonds{
+
+  position: absolute;
+  top: 51%;
+  left: 50%;
+  top: 115px;
+  z-index: 2;
+
+}
+
+.jack_of_diamonds{
+
+  position: absolute;
+  top: 52%;
+  left: 51%;
+  top: 130px;
+  z-index: 3;
+
+}
+
+.ace_of_diamonds{
+
+  position: absolute;
+  top: 53%;
+  left: 52%;
+  top: 145px;
+  z-index: 4;
+
+}
+
+.ten_of_diamonds{
+
+  position: absolute;
+  top: 54%;
+  left: 53%;
+  top: 160px;
+  z-index: 5;
+
+}
+
+html{
+
+  border: 20px solid red;
+}

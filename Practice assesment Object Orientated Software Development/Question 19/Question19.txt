@@ -1,0 +1,25 @@
+What might we do inside the finalize() method.
+
+The finalize() method is called the finalizer
+
+This method bring back objects that were in the garbage back to life
+
+Here is an example of how the finalizer might look like in a  java program 
+
+public class Finalizable {
+    private BufferedReader reader;
+
+    public Finalizable() {
+        InputStream input = this.getClass()
+          .getClassLoader()
+          .getResourceAsStream("file.txt");
+        this.reader = new BufferedReader(new InputStreamReader(input));
+    }
+
+    public String readFirstLine() throws IOException {
+        String firstLine = reader.readLine();
+        return firstLine;
+    }
+
+    // other class members
+}

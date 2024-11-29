@@ -1,0 +1,5 @@
+Explain the term overriding
+
+In java the term overriding is a method or a language feature that allows a subclass 
+or even a child class to implement a method that it already provided by one of its 
+superclasses or parent classes. 

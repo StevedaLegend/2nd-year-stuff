@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "websitemaking", "websitemaking\websitemaking.esproj", "{5C731E4F-0144-4477-A443-52DD38C50F3E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5C731E4F-0144-4477-A443-52DD38C50F3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C731E4F-0144-4477-A443-52DD38C50F3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C731E4F-0144-4477-A443-52DD38C50F3E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{5C731E4F-0144-4477-A443-52DD38C50F3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C731E4F-0144-4477-A443-52DD38C50F3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C731E4F-0144-4477-A443-52DD38C50F3E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {92A720BD-D58A-4370-AB04-F6917FE07C16}
+	EndGlobalSection
+EndGlobal

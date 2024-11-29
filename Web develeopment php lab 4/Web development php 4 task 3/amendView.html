@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylessheet" href="Task3.css">
+
+	
+</style>
+</head>
+<body>
+
+	<h1> Amend/View a Person</h1>
+	<h4>Please select any person and then click on amend button if you want to update</h4>
+	
+	<?php include 'listbox.php'; ?>
+	
+	<script>
+	function populate()
+	{
+	var sel = document.getElementById("listbox");
+	var result; 
+	result = sel.options[sel.selectedIndex].value;
+    var personDetails = result.split(',');
+	document.getElementById("display").innerHTML = "These are the details of the following student: " + result;
+	document.getElementById("amendname").value = personDetails[0];
+	document.getElementById("amendaddress").value = personDetails[1];
+	document.getElementById("amendphone").value = personDetails[2];
+	document.getElementById("amendgpa").value = personDetails[3];
+	document.getElementById("amendDOB").value = personDetails[4];
+	document.getElementById("amendyear").value = personDetails[5];
+	document.getElementById("amendcourse").value = personDetails[6];
+	}
+		
+	function toggleLock() {
+        if(document.getElementById("amendViewButton").value == "Amend Details") {
+            document.getElementById("amendname").disabled = false;
+            document.getElementById("amendaddress").disabled = false;
+            document.getElementById("amendphone").disabled = false;    
+            document.getElementById("amendgpa").disabled = false;
+            document.getElementById("amendDOB").disabled = false;
+            document.getElementById("amendyear").disabled = false;
+            document.getElementById("amendcourse").disabled = false;
+            document.getElementById("amendViewButton").value = "View Details";
+            }
+            else {
+                document.getElementById("amendname").disabled = true;
+                document.getElementById("amendaddress").disabled = true;
+                document.getElementById("amendphone").disabled = true;    
+                document.getElementById("amendgpa").disabled = true;
+                document.getElementById("amendDOB").disabled = true;
+                document.getElementById("amendyear").disabled = true;
+                document.getElementById("amendcourse").disabled = true;
+                document.getElementById("amendViewButton").value = "View Details";
+            }
+    }
+
+		 function confirmCheck() {
+        var response;
+
+        response = confirm('Are you sure you want to save these changes?');
+
+        if(response) {
+            document.getElementById("amendid").disabled = false;
+            document.getElementById("amendname").disabled = false;
+            document.getElementById("amendaddress").disabled = false;
+            document.getElementById("amendphone").disabled = false;    
+            document.getElementById("amendgpa").disabled = false;
+            document.getElementById("amendDOB").disabled = false;
+            document.getElementById("amendyear").disabled = false;
+            document.getElementById("amendcourse").disabled = false;
+            return true;
+        }
+        else {
+            populate();
+            toggleLock();
+            return false;
+        }
+    }
+</script>
+	
+	
+	<p id ="display"> </p>
+	<input type="button" value="Amend Details" id="amendViewButton" onclick="toggleLock()">
+	
+	<form name="myStudentslist" action="AmendView.php" onsubmit="return confirmCheck()" method="post">
+	
+		<select>
+	<option value ="James">James</option>
+	<option value ="Steve">Steve</option>
+	<option value ="Robert">Robert</option>
+        </select>
+
+		<label for "amendid"> StudentID </label>
+		<input type = "text" name = "amendid" id = "amendid" disabled>
+		
+		<label for "amendname"> StudentName </label>
+		<input type = "text" name = "amendname" id = "amendname" disabled>
+		
+		<label for "amendaddress"> StudentAddress </label>
+		<input type = "text" name = "amendaddress" id = "amendaddress" disabled>
+		
+		<label for "amendphone"> StudentPhone </label>
+		<input type = "text" name = "amendphone" id = "amendphone" disabled>
+		
+		<label for "amendgpa"> GradePointAverage </label>
+		<input type = "text" name = "amendgpa" id = "amendgpa" disabled>
+		
+		<label for "amendDOB"> DateOfBirth </label>
+		<input type = "text" name = "amendDOB" id = "amendDOB" disabled>
+		
+		<label for "amendyear"> YearBeganCourse </label>
+		<input type = "text" name = "amendyear" id = "amendyear" disabled>
+		
+		<label for "amendcourse"> CourseCode </label>
+		<input type = "text" name = "amendcourse" id = "amendcourse" disabled>
+<br><br>
+
+<input type="submit" value="Save Changes">
+
+
+</form>
+</body>
+</html>

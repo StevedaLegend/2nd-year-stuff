@@ -1,0 +1,12 @@
+Explain what the toString() method is used for.
+ 
+
+ The toString() is used to print out a string in a method when printing to the
+ main debugger of the class
+
+ To string is used in a method here is an example
+
+ Public toString(){
+
+    return "Amongus";
+ }

@@ -1,0 +1,7 @@
+What is the significance of a method being declared static?
+
+The main method in java is always static so that the compiler can call it without 
+the creation of an object or before the creation of an object class. 
+
+In java a public, static and a void must always be declared if not 
+when you are compling the program it will print out an error in the program

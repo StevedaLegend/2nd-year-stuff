@@ -1,0 +1,599 @@
+00000000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 26/02/2023 21:55:16
+
+00000000                             1  *.----------------.  .----------------.  .----------------.  .----------------.  .----------------.  .----------------.   .----------------.  .-----------------. .----------------.  .----------------.  .----------------. 
+00000000                             2  *| .--------------. || .--------------. || .--------------. || .--------------. || .--------------. || .--------------. | | .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |
+00000000                             3  *| |   ______     | || |   _____      | || |      __      | || |  ____  ____  | || |  _________   | || |  _______     | | | |     _____    | || | ____  _____  | || |   ______     | || | _____  _____ | || |  _________   | |
+00000000                             4  *| |  |_   __ \   | || |  |_   _|     | || |     /  \     | || | |_  _||_  _| | || | |_   ___  |  | || | |_   __ \    | | | |    |_   _|   | || ||_   \|_   _| | || |  |_   __ \   | || ||_   _||_   _|| || | |  _   _  |  | |
+00000000                             5  *| |    | |__) |  | || |    | |       | || |    / /\ \    | || |   \ \  / /   | || |   | |_  \_|  | || |   | |__) |   | | | |      | |     | || |  |   \ | |   | || |    | |__) |  | || |  | |    | |  | || | |_/ | | \_|  | |
+00000000                             6  *| |    |  ___/   | || |    | |   _   | || |   / ____ \   | || |    \ \/ /    | || |   |  _|  _   | || |   |  __ /    | | | |      | |     | || |  | |\ \| |   | || |    |  ___/   | || |  | '    ' |  | || |     | |      | |
+00000000                             7  *| |   _| |_      | || |   _| |__/ |  | || | _/ /    \ \_ | || |    _|  |_    | || |  _| |___/ |  | || |  _| |  \ \_  | | | |     _| |_    | || | _| |_\   |_  | || |   _| |_      | || |   \ `--' /   | || |    _| |_     | |
+00000000                             8  *| |  |_____|     | || |  |________|  | || ||____|  |____|| || |   |______|   | || | |_________|  | || | |____| |___| | | | |    |_____|   | || ||_____|\____| | || |  |_____|     | || |    `.__.'    | || |   |_____|    | |
+00000000                             9  *| |              | || |              | || |              | || |              | || |              | || |              | | | |              | || |              | || |              | || |              | || |              | |
+00000000                            10  *| '--------------' || '--------------' || '--------------' || '--------------' || '--------------' || '--------------' | | '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |
+00000000                            11  *'----------------'  '----------------'  '----------------'  '----------------'  '----------------'  '----------------'   '----------------'  '----------------'  '----------------'  '----------------'  '----------------' 
+00000000                            12  *Used with ascii
+00000000                            13  
+00000000                            14  
+00000000                            15  ALL_REG                 REG     D0-D7/A0-A6
+00000000  =00000013                 16  GET_KEY_INPUT_COMMAND   equ     19        
+00000000                            17  
+00000000                            18  *------------------------------------------------------------*
+00000000                            19  *------------------------------------------------------------*
+00000000                            20  *--------------Runner input key command----------------------*
+00000000                            21  *------------------------------------------------------------*
+00000000                            22  *------------------------------------------------------------*
+00000000                            23  initRunnerInput
+00000000  7420                      24          move.l          #$20,d2
+00000002                            25          
+00000002                            26  *--------------------------------------------------------------------------------*
+00000002                            27  *--------------------------------------------------------------------------------*
+00000002                            28  *--------------We move in key input value into the address line------------------*
+00000002                            29  *--------------------------------------------------------------------------------*
+00000002                            30  *--------------------------------------------------------------------------------*        
+00000002                            31  inputLoop
+00000002  4280                      32          clr.l           d0   
+00000004  103C 0013                 33          move.b          #GET_KEY_INPUT_COMMAND,d0
+00000008                            34          
+00000008                            35  *------------------------------------------------------------*
+00000008                            36  *------------------------------------------------------------*
+00000008                            37  *--------------Trap the value command------------------------*
+00000008                            38  *------------------------------------------------------------*
+00000008                            39  *------------------------------------------------------------*
+00000008  2202                      40          move.l          d2,d1
+0000000A  4E4F                      41          TRAP            #15
+0000000C                            42          
+0000000C                            43  *------------------------------------------------------------*
+0000000C                            44  *------------------------------------------------------------*
+0000000C                            45  *------------If the key is called/pressed use the value------*
+0000000C                            46  *------------------------------------------------------------*
+0000000C                            47  *------------------------------------------------------------*
+0000000C  0C01 0000                 48          cmpi.b          #0,d1
+00000010  6700 0008                 49          beq             noCall
+00000014  4EB9 00000038             50          jsr             callFunction
+0000001A                            51  
+0000001A                            52  *------------------------------------------------------------*
+0000001A                            53  *------------------------------------------------------------*
+0000001A                            54  *--------------Add in the next input value-------------------*
+0000001A                            55  *------------------------------------------------------------*
+0000001A                            56  *------------------------------------------------------------*        
+0000001A                            57  noCall
+0000001A  5282                      58          add.l           #1,d2          
+0000001C                            59  
+0000001C                            60  *--------------------------------------------------------------------------------------*
+0000001C                            61  *--------------------------------------------------------------------------------------*
+0000001C                            62  *----Character key is pressed to jump and goes up and down-----------------------------*
+0000001C                            63  *--------------------------------------------------------------------------------------*
+0000001C                            64  *--------------------------------------------------------------------------------------*  
+0000001C                            65  
+0000001C  0C02 005A                 66          cmpi.b          #$5A,d2
+00000020  66E0                      67          bne             inputLoop
+00000022  23FC 00000000 0000044E    68          move.l          #0, RunnerBeamPressed
+0000002C  23FC 00000000 00000452    69          move.l          #0, EnemyBeamPressed
+00000036  4E75                      70          rts
+00000038                            71  
+00000038                            72  *------------------------------------------------------------*
+00000038                            73  *------------------------------------------------------------*
+00000038                            74  *--------------Save the registers----------------------------*
+00000038                            75  *------------------------------------------------------------*
+00000038                            76  *------------------------------------------------------------*  
+00000038                            77  callFunction
+00000038  48E7 FFFE                 78          movem.l ALL_REG,-(sp)
+0000003C                            79          
+0000003C                            80  *------------------------------------------------------------*
+0000003C                            81  *------------------------------------------------------------*
+0000003C                            82  *--------------Load in the function table declared-----------*
+0000003C                            83  *------------------------------------------------------------*
+0000003C                            84  *------------------------------------------------------------*  
+0000003C  41F9 00000392             85          lea     FunctionTable,a0
+00000042  0482 00000020             86          sub.l   #$20,d2
+00000048  E58A                      87          lsl.l   #2,d2
+0000004A  2230 2000                 88          move.l  (a0,d2),d1
+0000004E                            89          
+0000004E                            90  *------------------------------------------------------------*
+0000004E                            91  *------------------------------------------------------------*
+0000004E                            92  *------------If the key is unknown ignore the pressed key----*
+0000004E                            93  *------------------------------------------------------------*
+0000004E                            94  *------------------------------------------------------------*  
+0000004E  0C81 00000000             95          cmpi.l  #0,d1
+00000054  6700 0006                 96          beq     noFuncPtr
+00000058                            97  
+00000058                            98  *---------------------------------------------------------------------------------*
+00000058                            99  *---------------------------------------------------------------------------------*
+00000058                           100  *--------------Move in the value into Addressline 1 and call it-------------------*
+00000058                           101  *---------------------------------------------------------------------------------*
+00000058                           102  *---------------------------------------------------------------------------------*  
+00000058  2241                     103          move.l  d1,a1
+0000005A  4E91                     104          jsr     (a1)  
+0000005C                           105          
+0000005C                           106  noFuncPtr
+0000005C  4CDF 7FFF                107          movem.l (sp)+,ALL_REG
+00000060  4E75                     108          rts
+00000062                           109  
+00000062                           110  *------------------------------------------------------------*
+00000062                           111  *------------------------------------------------------------*
+00000062                           112  *--------------Input routines to function on the screen------*
+00000062                           113  *------------------------------------------------------------*
+00000062                           114  *------------------------------------------------------------*  
+00000062                           115  spaceRoutine
+00000062  48E7 FFFE                116          movem.l ALL_REG,-(sp)   
+00000066  4CDF 7FFF                117          movem.l (sp)+,ALL_REG
+0000006A                           118  
+0000006A                           119  *------------------------------------------------------------------------------------------*
+0000006A                           120  *------------------------------------------------------------------------------------------*
+0000006A                           121  *---When button is pressed moved the player is moved from its Y position-------------------*
+0000006A                           122  *------------------------------------------------------------------------------------------*
+0000006A                           123  *------------------------------------------------------------------------------------------*          
+0000006A  203C 00000226            124          move.l  #550, d0
+Line 125 ERROR: Undefined symbol
+00000070  2239 004DBD16            125          move.l  RunnerY, d1
+Line 126 ERROR: Undefined symbol
+00000076  EC49                     126          lsr     #FRAC_BITS, d1
+00000078  B280                     127          cmp.l   d0,d1
+0000007A  6600 0002                128          BNE     jumpLoop
+0000007E                           129         
+0000007E                           130  *------------------------------------------------------------*
+0000007E                           131  *------------------------------------------------------------*
+0000007E                           132  *--------------Player is on the ground-----------------------*
+0000007E                           133  *------------------------------------------------------------*
+0000007E                           134  *------------------------------------------------------------*          
+0000007E                           135  jumpLoop
+0000007E                           136          *Set player down velocity to 0 and then 
+Line 137 ERROR: Undefined symbol
+0000007E  23FC 00000000 005455B8   137          move.l  #0, RunnerVelocity
+Line 138 ERROR: Undefined symbol
+00000088  2839 004DBD16            138          move.l  RunnerY, d4
+0000008E  7A32                     139          move.l  #50, d5
+Line 140 ERROR: Undefined symbol
+00000090  ED4D                     140          lsl     #FRAC_BITS, d5
+Line 141 ERROR: Undefined symbol
+00000092  2C39 004DBD16            141          move.l  RunnerY, d6
+Line 142 ERROR: Undefined symbol
+00000098  2639 004DBD16            142          move.l  RunnerSpeed, d3
+Line 143 ERROR: Undefined symbol
+0000009E  ED4B                     143          lsl     #FRAC_BITS, d3
+000000A0  9C83                     144          sub.l   d3, d6
+000000A2  BC45                     145          cmp     d5, d6
+000000A4  6D00 001E                146          BLT     spaceRoutineExit
+000000A8                           147          
+000000A8                           148  *------------------------------------------------------------*
+000000A8                           149  *------------------------------------------------------------*
+000000A8                           150  *---Change the player current sprite to the jumping sprite---*
+000000A8                           151  *------------------------------------------------------------*
+000000A8                           152  *------------------------------------------------------------*          
+Line 153 ERROR: Undefined symbol
+000000A8  23F9 004DBD16 005455B8   153          move.l  RunnerJumpSprite, RunnerChunkX
+000000B2  9883                     154          sub.l   d3, d4
+Line 155 ERROR: Undefined symbol
+000000B4  23C4 005455B8            155          move.l  d4, RunnerY
+Line 156 ERROR: Undefined symbol
+000000BA  23FC 00000001 005455B8   156          move.l  #1, RunnerJumping
+000000C4                           157          
+000000C4                           158  *------------------------------------------------------------*
+000000C4                           159  *------------------------------------------------------------*
+000000C4                           160  *--------------Space Button is pressed-----------------------*
+000000C4                           161  *------------------------------------------------------------*
+000000C4                           162  *------------------------------------------------------------*          
+000000C4                           163  spaceRoutineExit
+000000C4  4E75                     164          rts
+000000C6                           165          
+000000C6                           166  
+000000C6                           167          
+000000C6                           168  upRoutine
+000000C6                           169  *same as jumping routine of player 1 but for player 2
+000000C6  48E7 FFFE                170          movem.l ALL_REG,-(sp)   
+000000CA  4CDF 7FFF                171          movem.l (sp)+,ALL_REG
+000000CE                           172          
+000000CE  203C 0000021C            173          move.l  #540, d0
+Line 174 ERROR: Undefined symbol
+000000D4  2239 004DBD16            174          move.l  EnemyY, d1
+Line 175 ERROR: Undefined symbol
+000000DA  EC49                     175          lsr     #FRAC_BITS, d1
+000000DC  B280                     176          cmp.l   d0,d1
+000000DE  6600 0002                177          BNE     Player2JumpLoop
+000000E2                           178          
+000000E2                           179        
+000000E2                           180  Player2JumpLoop
+Line 181 ERROR: Undefined symbol
+000000E2  23FC 00000000 005455B8   181          move.l  #0, EnemyVelocity
+Line 182 ERROR: Undefined symbol
+000000EC  2839 004DBD16            182          move.l  EnemyY, d4
+000000F2  7A32                     183          move.l  #50, d5
+000000F4  E94D                     184          lsl     #4, d5
+Line 185 ERROR: Undefined symbol
+000000F6  2C39 004DBD16            185          move.l  EnemyY, d6
+Line 186 ERROR: Undefined symbol
+000000FC  2639 004DBD16            186          move.l  EnemySpeed, d3
+00000102  E94B                     187          lsl     #4, d3
+00000104  9C83                     188          sub.l   d3, d6
+00000106  BC45                     189          cmp     d5, d6
+00000108  6D00 001E                190          BLT     upRoutineExit
+0000010C                           191          
+Line 192 ERROR: Undefined symbol
+0000010C  23F9 004DBD16 005455B8   192          move.l  EnemyJumpSprite, EnemyChunkX
+00000116  9883                     193          sub.l   d3, d4
+Line 194 ERROR: Undefined symbol
+00000118  23C4 005455B8            194          move.l  d4, EnemyY
+Line 195 ERROR: Undefined symbol
+0000011E  23FC 00000001 005455B8   195          move.l  #1, EnemyJumping
+00000128                           196          
+00000128                           197  upRoutineExit
+00000128  4E75                     198          rts   
+0000012A                           199   
+0000012A                           200  rightRoutine
+0000012A                           201  *Move player 2 right until it come in contact with edge of screen
+0000012A  48E7 FFFE                202          movem.l ALL_REG,-(sp)   
+0000012E  4CDF 7FFF                203          movem.l (sp)+,ALL_REG
+Line 204 ERROR: Undefined symbol
+00000132  23FC 00000000 005455B8   204          move.l  #0, EnemyLeft
+Line 205 ERROR: Undefined symbol
+0000013C  2839 004DBD16            205          move.l  EnemyX, d4
+00000142  2A3C 000002BC            206          move.l  #700, d5
+Line 207 ERROR: Undefined symbol
+00000148  9AB9 004DBD16            207          sub.l   EnemyWidth, d5
+Line 208 ERROR: Undefined symbol
+0000014E  2C39 004DBD16            208          move.l  EnemyX, d6
+Line 209 ERROR: Undefined symbol
+00000154  DCB9 004DBD16            209          add.l   EnemySpeed, d6
+0000015A  BC45                     210          cmp     d5, d6
+0000015C  6E00 002C                211          BGT     rightRoutineExit
+00000160                           212          *change player 2 sprites to right sprites
+Line 213 ERROR: Undefined symbol
+00000160  23FC 0000009F 005455B8   213          move.l  #159, EnemyIdleSprite
+Line 214 ERROR: Undefined symbol
+0000016A  23FC 00000100 005455B8   214          move.l  #256,  EnemyJumpSprite
+00000174                           215  
+00000174                           216  
+00000174                           217          
+Line 218 ERROR: Undefined symbol
+00000174  23FC 000000BF 005455B8   218          move.l  #191, EnemyChunkX
+Line 219 ERROR: Undefined symbol
+0000017E  D8B9 004DBD16            219          add.l   EnemySpeed, d4
+Line 220 ERROR: Undefined symbol
+00000184  23C4 005455B8            220          move.l  d4, EnemyX
+0000018A                           221  rightRoutineExit
+0000018A  4E75                     222          rts     
+0000018C                           223  downRoutine
+0000018C  48E7 FFFE                224          movem.l ALL_REG,-(sp)   
+00000190  4CDF 7FFF                225          movem.l (sp)+,ALL_REG
+00000194  4E75                     226          rts
+00000196                           227  routine0
+00000196  48E7 FFFE                228          movem.l ALL_REG,-(sp)   
+0000019A  4CDF 7FFF                229          movem.l (sp)+,ALL_REG
+0000019E  4E75                     230          rts
+000001A0                           231  routine1
+000001A0  48E7 FFFE                232          movem.l ALL_REG,-(sp)   
+000001A4  4CDF 7FFF                233          movem.l (sp)+,ALL_REG
+000001A8  4E75                     234          rts     
+000001AA                           235  routine2
+000001AA  48E7 FFFE                236          movem.l ALL_REG,-(sp)   
+000001AE  4CDF 7FFF                237          movem.l (sp)+,ALL_REG
+000001B2  4E75                     238          rts     
+000001B4                           239  routine3
+000001B4  48E7 FFFE                240          movem.l ALL_REG,-(sp)   
+000001B8  4CDF 7FFF                241          movem.l (sp)+,ALL_REG
+000001BC  4E75                     242          rts     
+000001BE                           243  routine4
+000001BE  48E7 FFFE                244          movem.l ALL_REG,-(sp)   
+000001C2  4CDF 7FFF                245          movem.l (sp)+,ALL_REG
+000001C6  4E75                     246          rts     
+000001C8                           247  routine5
+000001C8  48E7 FFFE                248          movem.l ALL_REG,-(sp)   
+000001CC  4CDF 7FFF                249          movem.l (sp)+,ALL_REG
+000001D0  4E75                     250          rts
+000001D2                           251  routine6
+000001D2  48E7 FFFE                252          movem.l ALL_REG,-(sp)   
+000001D6  4CDF 7FFF                253          movem.l (sp)+,ALL_REG
+000001DA  4E75                     254          rts
+000001DC                           255  routine7
+000001DC  48E7 FFFE                256          movem.l ALL_REG,-(sp)   
+000001E0  4CDF 7FFF                257          movem.l (sp)+,ALL_REG
+000001E4  4E75                     258          rts
+000001E6                           259  routine8
+000001E6  48E7 FFFE                260          movem.l ALL_REG,-(sp)   
+000001EA  4CDF 7FFF                261          movem.l (sp)+,ALL_REG
+000001EE  4E75                     262          rts
+000001F0                           263  routine9
+000001F0  48E7 FFFE                264          movem.l ALL_REG,-(sp)   
+000001F4  4CDF 7FFF                265          movem.l (sp)+,ALL_REG
+000001F8  4E75                     266          rts
+000001FA                           267  routineA
+000001FA                           268          *left moveing logic for player1
+000001FA  48E7 FFFE                269          movem.l ALL_REG,-(sp)   
+000001FE  4CDF 7FFF                270          movem.l (sp)+,ALL_REG
+Line 271 ERROR: Undefined symbol
+00000202  23FC 00000001 005455B8   271          move.l  #1, RunnerLeft 
+Line 272 ERROR: Undefined symbol
+0000020C  2839 004DBD16            272          move.l  RunnerX, d4
+00000212  7A00                     273          move.l  #0, d5
+Line 274 ERROR: Undefined symbol
+00000214  2C39 004DBD16            274          move.l  RunnerX, d6
+Line 275 ERROR: Undefined symbol
+0000021A  9CB9 004DBD16            275          sub.l   RunnerSpeed, d6
+00000220  6D00 002C                276          BLT     ARoutineExit
+00000224                           277          
+Line 278 ERROR: Undefined symbol
+00000224  23FC 00000080 005455B8   278          move.l  #128, RunnerIdleSprite
+Line 279 ERROR: Undefined symbol
+0000022E  23FC 00000020 005455B8   279          move.l  #32,  RunnerJumpSprite
+00000238                           280                  
+Line 281 ERROR: Undefined symbol
+00000238  23FC 00000060 005455B8   281          move.l  #96, RunnerChunkX
+Line 282 ERROR: Undefined symbol
+00000242  98B9 004DBD16            282          sub.l   RunnerSpeed, d4
+Line 283 ERROR: Undefined symbol
+00000248  23C4 005455B8            283          move.l  d4, RunnerX
+0000024E                           284  ARoutineExit
+0000024E  4E75                     285          rts
+00000250                           286  routineB
+00000250  48E7 FFFE                287          movem.l ALL_REG,-(sp)   
+00000254  4CDF 7FFF                288          movem.l (sp)+,ALL_REG
+00000258  4E75                     289          rts
+0000025A                           290  routineC
+0000025A  48E7 FFFE                291          movem.l ALL_REG,-(sp)   
+0000025E  4CDF 7FFF                292          movem.l (sp)+,ALL_REG
+00000262  4E75                     293          rts
+00000264                           294  routineD
+00000264                           295          *move right logic for player 1
+00000264  48E7 FFFE                296          movem.l ALL_REG,-(sp)   
+00000268  4CDF 7FFF                297          movem.l (sp)+,ALL_REG
+Line 298 ERROR: Undefined symbol
+0000026C  23FC 00000000 005455B8   298          move.l  #0, RunnerLeft
+Line 299 ERROR: Undefined symbol
+00000276  2839 004DBD16            299          move.l  RunnerX, d4
+0000027C  2A3C 000002BC            300          move.l  #700, d5
+Line 301 ERROR: Undefined symbol
+00000282  9AB9 004DBD16            301          sub.l   RunnerWidth, d5
+Line 302 ERROR: Undefined symbol
+00000288  2C39 004DBD16            302          move.l  RunnerX, d6
+Line 303 ERROR: Undefined symbol
+0000028E  DCB9 004DBD16            303          add.l   RunnerSpeed, d6
+00000294  BC45                     304          cmp     d5, d6
+00000296  6E00 002C                305          BGT     DRoutineExit
+0000029A                           306          
+Line 307 ERROR: Undefined symbol
+0000029A  23FC 000000A0 005455B8   307          move.l  #160, RunnerIdleSprite
+Line 308 ERROR: Undefined symbol
+000002A4  23FC 00000100 005455B8   308          move.l  #256, RunnerJumpSprite
+000002AE                           309          
+Line 310 ERROR: Undefined symbol
+000002AE  23FC 000000C0 005455B8   310          move.l  #192, RunnerChunkX
+Line 311 ERROR: Undefined symbol
+000002B8  D8B9 004DBD16            311          add.l   RunnerSpeed, d4
+Line 312 ERROR: Undefined symbol
+000002BE  23C4 005455B8            312          move.l  d4, RunnerX
+000002C4                           313  DRoutineExit
+000002C4  4E75                     314          rts 
+000002C6                           315  routineE
+000002C6  48E7 FFFE                316          movem.l ALL_REG,-(sp)   
+000002CA  4CDF 7FFF                317          movem.l (sp)+,ALL_REG
+000002CE  4E75                     318          rts
+000002D0                           319  routineF
+000002D0  48E7 FFFE                320          movem.l ALL_REG,-(sp)   
+000002D4  4CDF 7FFF                321          movem.l (sp)+,ALL_REG
+000002D8  4E75                     322          rts
+000002DA                           323  routineG
+000002DA  48E7 FFFE                324          movem.l ALL_REG,-(sp)   
+000002DE  4CDF 7FFF                325          movem.l (sp)+,ALL_REG
+000002E2  4E75                     326          rts
+000002E4                           327  routineH
+000002E4  48E7 FFFE                328          movem.l ALL_REG,-(sp)   
+000002E8  4CDF 7FFF                329          movem.l (sp)+,ALL_REG
+000002EC  4E75                     330          rts
+000002EE                           331  routineI
+000002EE  48E7 FFFE                332          movem.l ALL_REG,-(sp)   
+000002F2  4CDF 7FFF                333          movem.l (sp)+,ALL_REG
+000002F6  4E75                     334          rts
+000002F8                           335  routineJ
+000002F8  48E7 FFFE                336          movem.l ALL_REG,-(sp)   
+000002FC  4CDF 7FFF                337          movem.l (sp)+,ALL_REG
+00000300  4E75                     338          rts
+00000302                           339  routineK
+00000302  48E7 FFFE                340          movem.l ALL_REG,-(sp)   
+00000306  4CDF 7FFF                341          movem.l (sp)+,ALL_REG
+0000030A  4E75                     342          rts
+0000030C                           343  
+0000030C                           344  routineL
+0000030C  48E7 FFFE                345          movem.l ALL_REG,-(sp)   
+00000310  4CDF 7FFF                346          movem.l (sp)+,ALL_REG
+00000314  4E75                     347          rts
+00000316                           348  
+00000316                           349  routineM
+00000316  48E7 FFFE                350          movem.l ALL_REG,-(sp)   
+0000031A  4CDF 7FFF                351          movem.l (sp)+,ALL_REG
+0000031E  4E75                     352          rts
+00000320                           353  
+00000320                           354  routineN
+00000320  48E7 FFFE                355          movem.l ALL_REG,-(sp)   
+00000324  4CDF 7FFF                356          movem.l (sp)+,ALL_REG
+00000328  4E75                     357          rts
+0000032A                           358  
+0000032A                           359  
+0000032A                           360          
+0000032A                           361  routineOExit
+0000032A  4E75                     362          rts
+0000032C                           363  
+0000032C                           364  routineP
+0000032C  48E7 FFFE                365          movem.l ALL_REG,-(sp)   
+00000330  4CDF 7FFF                366          movem.l (sp)+,ALL_REG
+00000334  4E75                     367          rts
+00000336                           368  
+00000336                           369  routineQ
+00000336  48E7 FFFE                370          movem.l ALL_REG,-(sp)   
+0000033A  4CDF 7FFF                371          movem.l (sp)+,ALL_REG
+0000033E  4E75                     372          rts
+00000340                           373  
+00000340                           374  routineR
+00000340  48E7 FFFE                375          movem.l ALL_REG,-(sp)   
+00000344  4CDF 7FFF                376          movem.l (sp)+,ALL_REG
+00000348  4E75                     377          rts
+0000034A                           378  
+0000034A                           379  routineS
+0000034A  48E7 FFFE                380          movem.l ALL_REG,-(sp)   
+0000034E  4CDF 7FFF                381          movem.l (sp)+,ALL_REG
+00000352  4E75                     382          rts
+00000354                           383  
+00000354                           384  routineT
+00000354  48E7 FFFE                385          movem.l ALL_REG,-(sp)   
+00000358  4CDF 7FFF                386          movem.l (sp)+,ALL_REG
+0000035C  4E75                     387          rts
+0000035E                           388  
+0000035E                           389  routineU
+0000035E  48E7 FFFE                390          movem.l ALL_REG,-(sp)   
+00000362  4CDF 7FFF                391          movem.l (sp)+,ALL_REG
+00000366  4E75                     392          rts
+00000368                           393  
+00000368                           394  routineV
+00000368                           395  
+00000368  48E7 FFFE                396          movem.l ALL_REG,-(sp)   
+0000036C  4CDF 7FFF                397          movem.l (sp)+,ALL_REG
+00000370  4E75                     398          rts
+00000372                           399          
+00000372                           400  routineWExit
+00000372  4E75                     401          rts
+00000374                           402  
+00000374                           403  routineX
+00000374  48E7 FFFE                404          movem.l ALL_REG,-(sp)   
+00000378  4CDF 7FFF                405          movem.l (sp)+,ALL_REG
+0000037C  4E75                     406          rts
+0000037E                           407  
+0000037E                           408  routineY
+0000037E  48E7 FFFE                409          movem.l ALL_REG,-(sp)   
+00000382  4CDF 7FFF                410          movem.l (sp)+,ALL_REG
+00000386  4E75                     411          rts
+00000388                           412  
+00000388                           413  routineZ
+00000388  48E7 FFFE                414          movem.l ALL_REG,-(sp)   
+0000038C  4CDF 7FFF                415          movem.l (sp)+,ALL_REG
+00000390  4E75                     416          rts
+00000392                           417          
+00000392                           418  
+00000392                           419  *start data at space and use arrow keys
+00000392                           420  FunctionTable   
+00000392                           421                  *0-9
+00000392= 00000062                 422                  dc.l    spaceRoutine
+00000396= 00000000 00000000 ...    423                  dc.l    0,0,0,0
+Line 424 ERROR: Undefined symbol
+000003A6= 0019F804 000000C6 ...    424                  dc.l    leftRoutine,upRoutine,rightRoutine,downRoutine
+000003B6= 00000000 00000000 ...    425                  dc.l    0,0,0,0,0,0,0
+000003D2= 00000196 000001A0 ...    426                  dc.l    routine0,routine1,routine2,routine3,routine4,routine5,routine6,routine7,routine8,routine9
+000003FA= 00000000 00000000 ...    427                  dc.l    0,0,0,0,0,0,0
+00000416= 000001FA 00000250 ...    428                  dc.l    routineA,routineB,routineC,routineD,routineE,routineF,routineG
+00000432= 000002E4 000002EE ...    429                  dc.l    routineH,routineI,routineJ,routineK,routineL,routineM,routineN
+0000044E                           430  
+0000044E                           431  
+0000044E                           432                  
+0000044E                           433  RunnerBeamPressed
+0000044E= 00000000                 434          dc.l    0
+00000452                           435  EnemyBeamPressed
+00000452= 00000000                 436          dc.l    0
+00000456                           437          
+00000456                           438  
+00000456                           439  
+00000456                           440  
+00000456                           441  
+00000456                           442  
+00000456                           443  
+00000456                           444  
+00000456                           445  
+00000456                           446  
+00000456                           447  
+00000456                           448  
+00000456                           449  
+00000456                           450  
+00000456                           451  
+00000456                           452  
+00000456                           453  
+00000456                           454  
+00000456                           455  
+00000456                           456  
+00000456                           457  
+00000456                           458  
+00000456                           459  
+00000456                           460  
+00000456                           461  
+00000456                           462  
+00000456                           463  
+00000456                           464  
+00000456                           465  
+00000456                           466  
+00000456                           467  
+00000456                           468  
+00000456                           469  
+00000456                           470  
+00000456                           471  
+00000456                           472  
+00000456                           473  
+00000456                           474  
+00000456                           475  
+00000456                           476  
+00000456                           477  
+00000456                           478  
+00000456                           479  
+Line 480 WARNING: END directive missing, starting address not set
+
+50 errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ALL_REG             7FFF
+AROUTINEEXIT        24E
+CALLFUNCTION        38
+DOWNROUTINE         18C
+DROUTINEEXIT        2C4
+ENEMYBEAMPRESSED    452
+FUNCTIONTABLE       392
+GET_KEY_INPUT_COMMAND  13
+INITRUNNERINPUT     0
+INPUTLOOP           2
+JUMPLOOP            7E
+NOCALL              1A
+NOFUNCPTR           5C
+PLAYER2JUMPLOOP     E2
+RIGHTROUTINE        12A
+RIGHTROUTINEEXIT    18A
+ROUTINE0            196
+ROUTINE1            1A0
+ROUTINE2            1AA
+ROUTINE3            1B4
+ROUTINE4            1BE
+ROUTINE5            1C8
+ROUTINE6            1D2
+ROUTINE7            1DC
+ROUTINE8            1E6
+ROUTINE9            1F0
+ROUTINEA            1FA
+ROUTINEB            250
+ROUTINEC            25A
+ROUTINED            264
+ROUTINEE            2C6
+ROUTINEF            2D0
+ROUTINEG            2DA
+ROUTINEH            2E4
+ROUTINEI            2EE
+ROUTINEJ            2F8
+ROUTINEK            302
+ROUTINEL            30C
+ROUTINEM            316
+ROUTINEN            320
+ROUTINEOEXIT        32A
+ROUTINEP            32C
+ROUTINEQ            336
+ROUTINER            340
+ROUTINES            34A
+ROUTINET            354
+ROUTINEU            35E
+ROUTINEV            368
+ROUTINEWEXIT        372
+ROUTINEX            374
+ROUTINEY            37E
+ROUTINEZ            388
+RUNNERBEAMPRESSED   44E
+SPACEROUTINE        62
+SPACEROUTINEEXIT    C4
+UPROUTINE           C6
+UPROUTINEEXIT       128

@@ -1,0 +1,23 @@
+.image0 {
+    float: right;
+    border: 5px double blue;
+    padding: 1px;
+    margin: 1px;
+
+}
+
+.image3 {
+    float: left;
+    border: 5px double blue;
+    padding: 1px;
+    margin: 1px;
+}
+ 
+.border1{
+    border: 5px solid black;
+}
+
+
+html{
+    border: 2px solid blue;
+}

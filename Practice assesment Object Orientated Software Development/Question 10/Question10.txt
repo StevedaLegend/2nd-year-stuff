@@ -1,0 +1,7 @@
+Class instance variables are normally defined to be Private. What does this
+mean?
+
+The Private variables are like public varibles except private so only the classes
+that are used to call them are only available to those classes only every other 
+class cannot see the varibles unless called the private is used so that every class 
+cant see them unless called

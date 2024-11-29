@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script>
+
+        // Varibles 
+        var max;
+        var num1;
+        var num2;
+        var num3;
+
+        // Using the fucntion tool it gets the variables 1 2 and 3 and sets which number is bigger than the other and says which one is max than the other number
+        function maxNum(num1, num2, num3){
+        var max = 0;
+        if((num1 >= num2) && (num1 >= num3)){
+            max = num1;
+        }
+        else if((num2 >= num1) && (num2 >= num3)){
+            max = num2;
+        }
+        else{
+            max = num3;
+        }
+    return max;
+    }
+
+    // Puts the numbers into an array then uses a loop to ask for the number 3 times or less than 3 times and prints to screen to enter a number 
+    var arr = []; 
+    for(i=0;i<3;i++){
+        arr[i] = parseInt(prompt("Enter a number"));
+    }
+
+    // Prints to the screen the max number
+    document.write(maxNum.apply(this, arr));
+
+        // function maxNum(num1, num2, num3) {
+
+        //     var max = 0;
+        //     if (num1 > num2)
+        //         if (num1 > num3) {
+        //             num1 = max;
+
+        //         }
+        //         else {
+        //             num3 = max;
+        //         }
+
+        //     else {
+        //         if (num2 > num3) {
+        //             num2 = max;
+        //         }
+        //     }
+        //     return max;
+        // }
+        // for (i = 0; i < 3; i++)
+        //     parseInt(prompt("Enter a number"));
+
+        // document.write(maxNum());
+
+
+    </script>
+</body>
+
+</html>

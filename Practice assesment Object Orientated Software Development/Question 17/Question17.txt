@@ -1,0 +1,15 @@
+Why do we sometimes need to use the keyword this in java?
+
+
+We sometimes use **this** in a java program because its easier to declare 
+a variable if its in a constuctor or a method we use **this** to declare 
+our variables in a contructor program. 
+
+An example 
+
+public Amoungus(name, age, dateofbirth){
+
+    this.name = name; 
+    this.age = age; 
+    this.dateofbirth = dateofbirth;
+}

@@ -1,0 +1,12 @@
+The difference between a class and an object is 
+
+CLASS:
+
+A class is a main source of a class java file and is used as a main to control 
+and maintain the class with varibales loops constuctors and outprints in the class
+file.
+
+OBJECT:
+
+An object is an object in a class used as a function to call something or to be 
+used as an object for a java program.

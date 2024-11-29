@@ -1,0 +1,2 @@
+C:\Users\denis\Desktop\Personal\websitemaking\websitemaking\obj\Debug\websitemaking.esproj.SuggestedBindingRedirects.cache
+C:\Users\denis\Desktop\Personal\websitemaking\websitemaking\obj\Debug\websitemaking.esproj.CoreCompileInputs.cache

@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+
+<body>
+    <script>
+
+        // Variables
+        var result;
+        var index = 0;
+        var average = 0;
+        var sum = 0;
+
+        // prompts the system input 
+        result = prompt("Please enter your grade, enter -1 to exit");
+        result = parseInt(result);
+
+        // if you were to put in -1 it will exit the system
+        if (result == -1) {
+            alert("no input");
+        }
+        else {
+
+            // Using the shile looop it will keep asking to input a number, as you are inputting the number is calculating up and up until you use -1 to get the average 
+            while (result != -1) {
+                sum = result + sum;         //adds on result to current sum
+                index++;
+                average = sum / index;      //index divided by sum to get average
+
+                result = prompt("Please enter a number, enter -1 to exit");
+                result = parseInt(result);
+
+
+            }
+            // Prints out of the screen the average 
+            document.write("average = " + average);
+
+        }
+    </script>
+</body>
+
+</html>
