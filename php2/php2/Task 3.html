@@ -1,0 +1,63 @@
+<!-- Task 3 php -->
+<!-- Student: Steve Fasoranti -->
+<!-- Student Number: C00275756 -->
+<!-- Purpose: Present  the user with a form to allow them to enter their name and select their date of birth from the date picker (use chrome). -->
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Task 3</title>
+
+<body style="background-color:rgb(0, 0, 0)"></body>
+
+</head>
+
+<!-- Links the Task 3.php -->
+<link rel="stylesheet" href="Task 3.php">
+
+
+
+
+<body>
+
+
+    <fieldset>
+        <form action="Task 3.php" method="post">
+
+
+            <!--The code Required asks for required informatio before you submit the form and the title is what it asks the user what is required-->
+            <h2>
+                <P style="color:whitesmoke">Please enter your name and select your date of birth from the date picker. </P>
+            </h2>
+
+            <div class="inputbox">
+                <label for="name">
+                    <P style="color:whitesmoke"> Name: </P>
+                </label>
+                <input type="text" name="name" id="name" required />
+
+                <div class="inputbox">
+                    <label for="DateofBirth">
+                        <P style="color:whitesmoke"> Date of Birth </P>
+                    </label>
+                    <input type="date" name="DateofBirth" id="DateofBirth" required 
+                        title="Please enter in a DateofBirth" />
+                </div>
+    
+                <div class="myButton">
+                    <input type="submit" value="Submit" name="submit" /><br><br>
+
+            </div>
+            </div>
+            </div>
+    </fieldset>
+
+
+
+
+
+    </form>
+</body>
+
+</html>

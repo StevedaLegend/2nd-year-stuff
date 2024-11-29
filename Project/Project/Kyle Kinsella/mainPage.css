@@ -1,0 +1,75 @@
+/* 
+    Name: Kyle Kinsella
+    Purpose of screen: Style the main page html file
+    Student ID, name and date written: C00273146, Kyle Kinsella, 4/3/23 
+*/
+
+
+
+body {
+    background-color: #348C31;
+}
+
+h1 {
+    text-align: center;
+    background-color: #348C31;
+    padding: 100px;
+    right: 130px;
+    font-style: italic;
+}
+
+h2 {
+    text-align: center;
+    padding: 30px;
+    left: 130px;
+    font-style: italic;
+}
+
+.selectIndoor {
+    padding: 30px;
+    left: 130px;
+    font-style: italic;
+}
+
+img {
+    width: 270px;
+    height: 150px;
+    position: absolute;
+    float: left;
+}
+
+.purchase {
+    border: 3px solid red;
+    height: 350px;
+}
+
+
+
+.logo {
+    width: 270px;
+    height: 150px;
+    position: absolute;
+    float: left;
+}
+
+
+
+ul {
+    float: right;
+    background-position: 100%;
+    list-style-type: none;
+
+    font-style: oblique;
+    font-size: 15px;
+    text-decoration: none;
+
+}
+
+li {
+    background-repeat: no-repeat;
+    background-position: 100% .4em;
+    padding-right: .8em;
+    text-decoration: none;
+}
+
+ 

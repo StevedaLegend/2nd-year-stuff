@@ -1,0 +1,77 @@
+<!-- Task 8 php -->
+<!-- Student: Steve Fasoranti -->
+<!-- Student Number: C00275756 -->
+<!-- Purpose: Using an HTML form, allow the user to input a date - ask for the day, month and year and reply with the Day of the week matching that date. -->
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Task 8</title>
+
+<body style="background-color:rgb(0, 0, 0)"></body>
+
+</head>
+
+<!-- Link the css file -->
+<link rel="stylesheet" href="Task 8.css">
+
+<!-- Link the PHP file -->
+<link rel="stylesheet" href="Task 8.php">
+
+
+
+
+<body>
+
+
+    <fieldset>
+
+        <!-- Use the Task 8.php as a post method to print what what you wrote in the following fields -->
+        <form action="Task 8.php" method="post">
+
+
+            <!--The code Required asks for required informatio before you submit the form and the title is what it asks the user what is required-->
+            <h2>
+                <P style="color:whitesmoke">Please enter the details and find out the day of the week searching the
+                    input
+            </h2>
+
+            <div class="inputbox">
+                <label for="Day of Month">
+                    <P style="color:whitesmoke"> Day of Month
+                </label>
+                <input type="number" name="Day Of Month" id="Day of Month" required />
+
+                <div class="inputbox">
+                    <label for="Month">
+                        <P style="color:whitesmoke"> Month
+                    </label>
+                    <input type="number" name="Month" id="Month" required title="Please enter in a month" />
+                </div>
+
+                <div class="inputbox">
+                    <label for="Year">
+                        <P style="color:whitesmoke"> Year
+                    </label>
+                    <input type="number" name="Year" id="Year" required title="Please emter in a year" />
+                </div>
+
+                <div class="myButton">
+
+                    <!-- WHen you hit submit it sends the submit button as a post to the php file to print -->
+                    <input type="submit" value="Submit" name="submit" /><br><br>
+
+                </div>
+            </div>
+            </div>
+    </fieldset>
+
+
+
+
+
+    </form>
+</body>
+
+</html>

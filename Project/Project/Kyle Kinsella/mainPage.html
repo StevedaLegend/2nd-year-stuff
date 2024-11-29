@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="mainPage.css" />
+</head>
+
+
+<!--
+    Name: Kyle Kinsella
+    Purpose of screen: This is the main page that allows you to navigate through screens with the use of links
+    Student ID, name and date written: C00273146, Kyle Kinsella, 25/2/23
+-->
+
+<header>
+
+     
+    <div class="header">
+        
+
+      <!--This is a simple unordered list(ul) with links to other pages-->
+        <ul>
+
+
+            <li><a href="">Hiring of Equipment </a></li> 
+            <li><a href="returnEquipment.html.php">Return Of Equipment </a></li>
+            
+
+            <li><a href="makeAPaymentnotAssigned.html">Make a Payment </a></li>
+
+
+
+
+            <li>Stock Control Menu
+              <ul class="nested">
+             
+                  <li><a href="">Manual Ordering</a></li>
+                  <li><a href="deliveries.html">Deliveries</a></li>
+                  <li><a href="quit.html">Quit</a></li>
+                </ul>
+          </li>
+
+
+
+
+            <li>File Maintenance Menu
+              <ul class="nested">
+             
+                  <li><a href="AddEquipmentItem.html">Add an Equipment Item</a></li>
+                  <li><a href="deleteEquipment.html.php">Delete an Equipment Item</a></li>
+                  <li><a href="AmendView.html(1).php">Amend/View an Equipment Item</a></li>
+    
+                  <li><a href="addCustomer.html">Add a Customer</a></li>
+                  <li><a href="delete.html.php">Delete a Customer</a></li>
+                  <li><a href="AmendView.html.php">Amend / View a Customer</a></li>
+               
+                  <li><a href="AddaSupplier.html.php">Add a Supplier</a></li>
+                  <li><a href="DeleteaSupplier.html.php">Delete a Supplier</a></li>
+                  <li><a href="AmendViewaSupplier.html.php">Amend/View a Supplier</a></li>
+    
+                  <li><a href=""> Equipment Item Report </a></li>
+                  <li><a href="customerreport.php">Customer Report </a></li>
+                  <li><a href="supplierReport.php"> Supplier Report </a></li>
+    
+                </ul>
+          </li>
+
+
+            <li><a href="reportsMenu.html">Reports Menu </a></li>
+
+
+
+            
+         
+         
+
+
+               
+          
+
+
+        
+
+
+            <li><a href="quit.html">Quit </a></li>
+        </ul> 
+
+
+
+      
+      <script>
+        // This code is a simple and effective way to add a collapsible nested list feature to a website.
+
+        const listItems = document.querySelectorAll('li');
+        listItems.forEach(item => {
+          item.addEventListener('click', () => {
+            const nestedList = item.querySelector('ul');
+            if (nestedList) {
+              nestedList.classList.toggle('active');
+            }
+          });
+        });
+      </script>
+      
+      
+      <style>
+        /* here I am just styling the classes with the name "nested" */
+        .nested {
+          display: none;
+        }
+        .active {
+          display: block;
+        }
+      </style>
+      
+
+
+
+        <!--list 2-->
+
+        <ul id="list2">
+            <li>Add a Customer</li>
+            <li>Delete a Customer</li>
+            <li>Amend / View a customer</li>
+        </ul>
+        
+        <a href="mainPage.html" target="_blank">
+            <img src="logo.png"/>        
+        </a>
+    
+        <h1>Equipment Hire</h1>
+    
+    </div>
+</header>
+
+<body>
+    
+<script>
+
+        // Get references to the link and the list
+        var link = document.getElementById('header');
+        var list = document.getElementById('list2');
+      
+        // Hide the list by default
+        list.style.display = 'none';
+      
+        // Add a click event listener to the link
+        link.addEventListener('click', function() {
+          // Toggle the visibility of the list
+          if (list.style.display === 'none') {
+            list.style.display = 'block';
+          } else {
+            list.style.display = 'none';
+          }
+        });
+
+      
+</script>
+
+
+<footer>
+    
+</footer>
+
+</body>
+</html>

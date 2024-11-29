@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insert Customer</title>
+    <link rel="stylesheet" href="addCustomer.css"/>
+</head>
+<body>
+
+<!-- 
+    Name: Kyle Kinsella
+    Purpose of screen:  A html form to allow a user to input details to the Customer table
+    Student ID, name and date written: C00273146, Kyle Kinsella, 21/3/23 
+ -->
+
+
+    
+<!--This is just a simple html form-->
+
+<div class="insertCustomer">
+    <form action="insert.php" method="post" onsubmit="return question()">
+
+
+        <h1>Insert Customer</h1>
+    
+        <div class="surname">
+            <label for="surname">Surname</label>
+            <input type="text" name="surname" id="surname" placeholder="Enter your surname" required>
+        </div>
+
+
+        <div class="firstName">
+            <label for="firstName">First Name</label>
+            <input type="text" name="firstName" id="firstName" placeholder="Enter your First name" required>
+        </div>
+        
+    
+        <div class="address">
+            <label for="address">Address</label>
+            <input type="text" name="address" id="address" placeholder="Enter your address" required>
+        </div>
+        
+      
+        <div class="phoneNum">
+            <label for="phoneNum">Phone number</label>
+            <input type="text" name="phoneNum" id="phoneNum" placeholder="Format = 000-000-0000" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" required>
+        </div>
+        
+        <div class="creditLimit">
+            <label for="creditLimit">Credit Limit</label>
+            <input type="text" name="creditLimit" id="creditLimit" placeholder="Credit Limit" required>
+        </div>
+
+    
+
+
+       <script>
+            function question() {
+            
+            var answer;
+
+            //  here I am asking the user a question 
+            answer = confirm("Are you sure you want to insert this new Customer?")
+
+            if(answer) {
+                // if "yes" insert the new customer
+                return true;
+            }
+            else {
+                // if "no" dont insert a customer or anything
+                return false;
+            }
+            }
+        </script>
+        
+        <div class="buttons">
+            <!--when you click the "Insert Button" the HTML form will be submited and then the insert.php file will be invoked and also the question method will ask you the question "Are you sure you want to insert this new Customer?"-->
+            <input type="submit" value="Insert Customer">
+            <input type="reset" value="Clear">
+        </div>
+    </form>   
+    
+    
+    <!--This is a button, so when you press it, it brings you back to the screen called "mainPage.html"-->
+    <form action="mainPage.html" method="post">
+        <br>
+        <input type="submit" value="Return to Home Page">
+     </form>
+    
+</div>
+
+    
+</body>
+</html>

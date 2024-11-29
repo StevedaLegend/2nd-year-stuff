@@ -1,0 +1,95 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Adding Equipment Items</title>
+    <link rel="stylesheet" href="project.css">
+</head>
+<body>
+    <img class = "logo" src="Frog.png">
+    <ul>
+        <li> <a href="HiringOfEquipment.html.php">Hiring Of Equipment</a></li>
+
+        <li> <a href="returnEquipment.html.php">Return Equipment</a></li>
+        
+        <li> <a href="makeAPaymentnotAssigned.html">Make a Payment</a></li>
+
+        <li> <a href="stockControlMenu.html">Stock Control</a></li>
+
+        <li> <a href="fileMaintenanceMenu.html">File Maintenance</a></li>
+
+        <li> <a href="reportsMenu.html">Reports</a></li>
+
+
+
+        <li>
+            Quit
+        </li>
+        
+    </ul>
+        <div class="h1">
+            <h1>Adding an Equipment Item </h1>
+            <script>
+                function promptMe(){
+                    var promptuser = confirm("Are you sure you want to continue?");
+                    alert(promptuser);
+
+                    if(promptuser) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            </script>
+            <p>
+                <select name="EquipmentId " type="text" id="EquipmentId ">
+                    <!-- options go here -->
+                </select>
+
+                <label for="EquipmentTypeID">Select EquipmentTypeID</label>
+                <select name="EquipmentTypeID" type="text" id="EquipmentTypeID">
+                    <option value="1">Equipment ID 1</option>
+                    <option value="2">Equipment ID 2</option>
+                    <option value="3">Equipment ID 3</option>
+                    <option value="4">Equipment ID 4</option>
+                    <option value="5">Equipment ID 5</option>
+                    <option value="6">Equipment ID 6</option>
+                    <option value="7">Equipment ID 7</option>
+                </select>
+
+            </p>
+            <p>
+                <div class = "label"></div>
+                <label for="Description">Description of the item :</label>
+                <input type="text" id="Description" name="Description">
+            </p>
+            <p>
+                <div class = "label"></div>
+                <label for="ECondition">Condition of the item:</label>
+                <input type="text" id="ECondition" name="ECondition" value="excellent">
+            </p>
+            <p>
+                <div class = "label"></div>
+                <label for="Status">Status of the item:</label>
+                <input type="text" id="Status" name="Status" value="available">
+            </p>
+
+            <p>
+                <div class = "label"></div>
+                <label for="TimeOfPurchase">Date of purchase:</label>
+                <input type="date" id="TimeOfPurchase" name="TimeOfPurchase">
+            </p>
+            <p>
+                <div class = "label"></div>
+                <label for="Cost">Cost Price:</label>
+                <input type="number" id="Cost" name="Cost">
+            </p>
+            <p>
+                <div class = "label"></div>
+                <button type="submit" id="submit" onclick="return promptMe();">Add</button>
+            </p>
+        </div>
+        <form action="AddEquipmentitem.php" method="POST">
+            </div>
+    </form>
+</body>
+</html>

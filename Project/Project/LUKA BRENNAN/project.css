@@ -1,0 +1,52 @@
+h1 {
+    text-align: center;
+    background-color: #348C31;
+    padding: 56.5px;
+    left: 130px;
+    font-style: italic;
+}
+
+h2 {
+    text-align: center;
+    padding: 30px;
+    left: 130px;
+    font-style: italic;
+}
+
+
+.logo {
+    width: 270px;
+    height: 150px;
+    position: absolute;
+    float: left;
+}
+
+
+
+.header_EQH{
+    float: right;
+    background-position: 100%;
+    list-style-type: none;
+
+    font-style: oblique;
+    font-size: 15px;
+}
+
+
+ul {
+    float: right;
+    background-position: 100%;
+    list-style-type: none;
+
+    font-style: oblique;
+    font-size: 15px;
+    text-decoration: none;
+
+}
+
+li {
+    background-repeat: no-repeat;
+    background-position: 100% .4em;
+    padding-right: .8em;
+    text-decoration: none;
+}

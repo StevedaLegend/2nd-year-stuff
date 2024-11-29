@@ -1,0 +1,53 @@
+<html>
+
+<head>
+  <title>Insert Record into Database</title>
+</head>
+
+<!--Using java script we get the system to prompt when you press the save changes it asks are you sure and if you press okay it will prompt true so it will add it to the data base if cancel so changes will be made to the database-->
+<script>
+  function promptMe() {
+      var promptuser = confirm("Are you sure you want to continue?");
+      alert(promptuser);
+
+      if (promptuser) {
+          return true;
+      } else {
+          return false;
+      }
+  }
+</script>
+
+<body>
+  <form action="insert.php" method="post">
+    <label for="first_name">First Name:</label>
+
+    <input type="text" id="first_name" name="first_name" required><br><br>
+    <label for="last_name">Last Name:</label>
+
+    <input type="text" id="last_name" name="last_name" required><br><br>
+    <label for="email">Email:</label>
+
+    <input type="email" id="email" name="email" title="Enter in the Email Address Example: example@example.com"
+      placeholder="example@example.com" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required><br><br>
+
+    <label for="gender">Gender:</label>
+
+    <input type="radio" id="male" name="gender" value="male">
+
+    <label for="male">Male</label>
+
+    <input type="radio" id="female" name="gender" value="female">
+
+    <label for="female">Female</label><br><br>
+
+    <label for="dob">Date of Birth:</label>
+
+    <input type="date" id="dob" name="dob" required><br><br>
+
+    <input type="submit" value="Submit" onclick="return promptMe();">
+    <input type="reset" value="Clear" />
+  </form>
+</body>
+
+</html>

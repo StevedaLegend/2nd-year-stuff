@@ -1,0 +1,2353 @@
+00002000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 27/02/2023 11:44:00
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Written by : 
+00000000                             3  * Date       : 10/2/2016
+00000000                             4  * Description: This is the main game loop of the game
+00000000                             5  *-----------------------------------------------------------
+00000000                             6   
+00000000                             7  
+00002000                             8      ORG    $2000
+00002000                             9  START:                  ; first instruction of program
+00002000                            10  
+00002000  =00000020                 11  SPACE_KEY               equ $20
+00002000  =00000026                 12  UP_KEY                  equ $26
+00002000  =00000028                 13  DOWN_KEY                equ $28
+00002000  =00000025                 14  LEFT_KEY                equ $25
+00002000  =00000027                 15  RIGHT_KEY               equ $27
+00002000  =0000009C                 16  Gravity                 equ $9C     ;gravity store for the closest representation of 9.8
+00002000  =00000034                 17  PowerUpSquareLength     equ 52
+00002000  =00000013                 18  GET_USER_INPUT_COMMAND  equ 19
+00002000  =000000A0                 19  Player1StartSpriteX     equ 160
+00002000  =00000081                 20  Player2StartSpriteX     equ 129
+00002000  =00000004                 21  FRAC_BITS               equ 4
+00002000                            22  
+00002000                            23  
+00002000                            24  
+00002000                            25  
+00002000                            26  * Put program code here
+00002000                            27  
+00002000                            28  
+00002000                            29  
+00002000                            30          *change size of terminal
+00002000  103C 0021                 31          move.b  #(ScreenChangeCode) , d0
+00002004  223C 02BC0258             32          move.l  #700*$10000+600, d1
+0000200A  4E4F                      33          trap    #15
+0000200C                            34          
+0000200C                            35          *load in the loading image first and use the draw routine
+0000200C  41F9 00136148             36          lea     LoadingImage, a0
+00002012  223C 000000A0             37          move.l  #160, d1
+00002018  243C 000000AA             38          move.l  #170, d2
+0000201E  263C 0000010E             39          move.l  #270, d3
+00002024  283C 000000FA             40          move.l  #250, d4
+0000202A  7A00                      41          move.l  #0, d5
+0000202C  7C00                      42          move.l  #0, d6
+0000202E  4EB9 00326A92             43          jsr     DRAWIMAGE
+00002034                            44          
+00002034                            45          *enable double buffering after the loading screen
+00002034  103C 005C                 46          move.b  #92, d0
+00002038  123C 0011                 47          move.b  #17, d1
+0000203C  4E4F                      48          trap    #15  
+0000203E                            49          
+0000203E                            50          *load title music into memory at location 0
+0000203E  43F9 00002652             51          lea     TitleMusic, a1
+00002044  123C 0000                 52          move.b  #0,d1
+00002048  704A                      53          move.l  #74,d0
+0000204A  4E4F                      54          Trap    #15
+0000204C                            55  
+0000204C                            56  
+0000204C                            57          *load battle music into memory at location 1      
+0000204C  43F9 00002666             58          lea     BattleMusic, a1
+00002052  123C 0001                 59          move.b  #1,d1
+00002056  704A                      60          move.l  #74,d0
+00002058  4E4F                      61          Trap    #15
+0000205A                            62  
+0000205A                            63  ResetBattleVariables
+0000205A                            64  
+0000205A                            65          *Reset all of the variables for player 1
+0000205A  23FC 0000000A 0000256E    66          move.l  #10,Player1X
+00002064  23FC 00000226 00002572    67          move.l  #550, Player1Y
+0000206E  23FC 000000A0 00002576    68          move.l  #160, Player1ChunkX
+00002078  23FC 00000000 0000257A    69          move.l  #0, Player1ChunkY
+00002082  23FC 0000000A 0000257E    70          move.l  #10, Player1Speed
+0000208C  23FC 00000000 00002582    71          move.l  #0, Player1Jumping
+00002096  23FC 00000008 00002586    72          move.l  #8, Player1Health
+000020A0  23FC 00000000 0000258A    73          move.l  #0, Player1Left
+000020AA  23FC 00000010 000025A6    74          move.l  #16, Player1ProjectileWidth
+000020B4  23FC 0000000C 000025AA    75          move.l  #12, Player1ProjectileHeight
+000020BE  23FC 0000000A 000025B6    76          move.l  #10, Player1ProjectileYOffset
+000020C8  23FC 00000001 000025C2    77          move.l  #1, Player1ProjectileDamage
+000020D2                            78          
+000020D2                            79  
+000020D2                            80          
+000020D2                            81          *reset the booleans to false for the powerup
+000020D2  23FC 00000000 0000263E    82          move.l  #0, ActivePowerUp
+000020DC  23FC 00000000 0000264E    83          move.l  #0, PowerUpGrabbed  
+000020E6                            84  
+000020E6                            85  
+000020E6                            86                
+000020E6                            87        
+000020E6                            88          *Draw the title screen and call the draw routine
+000020E6  41F9 0014A092             89          lea     TitleScreen, a0
+000020EC  223C 000002BC             90          move.l  #700, d1
+000020F2  243C 00000258             91          move.l  #600, d2
+000020F8  7600                      92          move.l  #0, d3
+000020FA  7800                      93          move.l  #0, d4
+000020FC  7A00                      94          move.l  #0, d5
+000020FE  7C00                      95          move.l  #0, d6
+00002100  4EB9 00326A92             96          jsr     DRAWIMAGE
+00002106                            97          
+00002106                            98          *dump double buffer onto screen to display new draw
+00002106  103C 005E                 99          move.b  #94, d0
+0000210A  4E4F                     100          trap    #15
+0000210C                           101          
+0000210C                           102          
+0000210C                           103          
+0000210C                           104          *play the music for the title screen
+0000210C  123C 0000                105          move.b  #0, d1
+00002110  7402                     106          move.l  #2, d2
+00002112  704B                     107          move.l  #75, d0
+00002114  4E4F                     108          trap    #15
+00002116                           109          
+00002116                           110          *Draw the background of the Battle scene
+00002116  41F9 000026DE            111          lea     BackGround, a0
+0000211C  223C 000002BC            112          move.l  #700, d1
+00002122  243C 00000226            113          move.l  #550, d2
+00002128  7600                     114          move.l  #0, d3
+0000212A  7832                     115          move.l  #50, d4
+0000212C  7A00                     116          move.l  #0, d5
+0000212E  7C32                     117          move.l  #50, d6
+00002130  4EB9 00326A92            118          jsr     DRAWIMAGE
+00002136                           119          
+00002136                           120          *get a random number and load it into the activation timer
+00002136  4EB9 0032756A            121          jsr     seedRandomNumber
+0000213C  4286                     122          clr.l   d6
+0000213E  4EB9 00327582            123          jsr     getRandomByteIntoD6
+00002144  23C6 0000264A            124          move.l  d6, PowerUpActivationTime
+0000214A                           125          
+0000214A                           126          
+0000214A                           127          *store player velocity as a shifted number for calculation
+0000214A  2039 00002632            128          move.l  Player1Velocity, d0
+00002150  E948                     129          lsl     #FRAC_BITS, d0
+00002152  23C0 00002632            130          move.l  d0, Player1Velocity
+00002158                           131          *Store Player positions shifted as well for the Y coordinate.
+00002158  2039 00002572            132          move.l  Player1Y, d0
+0000215E  E948                     133          lsl     #FRAC_BITS, d0
+00002160  23C0 00002572            134          move.l  d0, Player1Y        
+00002166  2039 000025D2            135          move.l  Player2Y, d0
+0000216C  E948                     136          lsl     #FRAC_BITS, d0
+0000216E  23C0 000025D2            137          move.l  d0, Player2Y
+00002174                           138  
+00002174                           139          *Set drawing pen to black for score bar
+00002174  7050                     140          move.l      #80, d0
+00002176  7200                     141          move.l      #$00000000, d1
+00002178  4E4F                     142          trap        #15
+0000217A  7051                     143          move.l      #81, d0
+0000217C  7200                     144          move.l      #$00000000, d1
+0000217E  4E4F                     145          trap        #15
+00002180                           146          *Draw a filled black box in the upper 50 pixels of the screen
+00002180  323C 0000                147          move.w      #0, d1
+00002184  343C 0000                148          move.w      #0, d2
+00002188  363C 02BC                149          move.w      #700, d3
+0000218C  383C 0032                150          move.w      #50, d4
+00002190  7057                     151          move.l      #87, d0
+00002192  4E4F                     152          trap        #15
+00002194                           153          
+00002194                           154          *Draw health bar images
+00002194  4EB9 00002412            155          jsr     DrawPlayer1Health
+0000219A                           156          
+0000219A                           157          *Draw 7 segment health digits with the health of each player displayed
+0000219A  2039 00002586            158          move.l  Player1Health, d0
+000021A0  2A39 00002642            159          move.l  Player1ScoreX, d5
+000021A6  4EB9 00326B52            160          jsr     updateHealth
+000021AC  2039 000025E6            161          move.l  Player2Health, d0
+000021B2  2A39 00002646            162          move.l  Player2ScoreX, d5
+000021B8  4EB9 00326B52            163          jsr     updateHealth
+000021BE  4EB9 000023AA            164          jsr     drawPlayerCall
+000021C4  4EB9 000023DE            165          jsr     drawPlayer2Call
+000021CA                           166          
+000021CA                           167          
+000021CA                           168  TitleLoop
+000021CA                           169          *check to see if the user presses the space key
+000021CA  103C 0013                170          move.b          #GET_KEY_INPUT_COMMAND,d0
+000021CE  7220                     171          move.l          #SPACE_KEY,d1
+000021D0  4E4F                     172          TRAP            #15
+000021D2  0C81 00000000            173          cmpi.l          #0, d1
+000021D8  67F0                     174          BEQ             TitleLoop
+000021DA                           175                  
+000021DA                           176          *Halt the title music and play the battle music
+000021DA  123C 0000                177          move.b  #0,d1 
+000021DE  7402                     178          move.l  #2,d2
+000021E0  704D                     179          move.l  #77,d0
+000021E2  4E4F                     180          Trap    #15
+000021E4                           181          
+000021E4  123C 0001                182          move.b  #1, d1
+000021E8  7401                     183          move.l  #1, d2
+000021EA  704D                     184          move.l  #77, d0
+000021EC  4E4F                     185          trap    #15
+000021EE                           186          
+000021EE                           187          *place double buffer on the view of the screen
+000021EE  103C 005E                188          move.b  #94, d0
+000021F2  4E4F                     189          trap    #15
+000021F4                           190  
+000021F4                           191  *main gameloop to update entities and draw them
+000021F4                           192  GAMELOOP:
+000021F4  4EB9 00002430            193      jsr     updatePlayersBackgrounds
+000021FA  4EB9 00326B0A            194      jsr     initPlayerInput
+00002200  4EB9 0032760A            195      jsr     updatePlayerGravity
+00002206  4EB9 00326CBC            196      jsr     CheckForPlayerCollision
+0000220C  4EB9 00327508            197      jsr     CheckForPowerUpActivation
+00002212  4EB9 0000239C            198      jsr     updateProjectilesBackgrounds
+00002218  4EB9 003272AA            199      jsr     CheckProjectileCollision 
+0000221E  4EB9 000024FA            200      jsr     drawPlayers
+00002224                           201      
+00002224                           202      
+00002224  103C 005E                203      move.b  #94, d0                     ;Get the double buffer onto the screen
+00002228  4E4F                     204      trap    #15
+0000222A                           205      
+0000222A                           206      *Check both players health to see if they are at 0.  If they are, end the game
+0000222A  2039 000025E6            207      move.l  Player2Health, d0
+00002230  0C80 00000001            208      cmpi.l  #1, d0
+00002236  6D00 0014                209      BLT     PLAYER1WINROUTINE
+0000223A                           210      
+0000223A  2039 00002586            211      move.l  Player1Health, d0
+00002240  0C80 00000001            212      cmpi.l  #1, d0
+00002246  6D00 00AE                213      BLT     PLAYER2WINROUTINE
+0000224A                           214      
+0000224A  60A8                     215      bra     GAMELOOP                    ;Otherwise, game is still running.  Loop back
+0000224C                           216      
+0000224C                           217      
+0000224C                           218  *Player 2's health reached 0  so create player 2 win screen  
+0000224C                           219  PLAYER1WINROUTINE  
+0000224C                           220      *Draw over players and projectiles
+0000224C  4EB9 00002430            221      jsr     updatePlayersBackgrounds
+00002252                           222      
+00002252  4EB9 00327080            223      jsr     updateProjectilesBackground
+00002258                           224      *Draw win banner
+00002258  41F9 002BDCAC            225      lea     Player1WinsBanner, a0
+0000225E  223C 000002BC            226      move.l  #700, d1
+00002264  7464                     227      move.l  #100, d2
+00002266  7600                     228      move.l  #0, d3
+00002268  283C 0000012C            229      move.l  #300, d4
+0000226E  7A00                     230      move.l  #0, d5
+00002270  7C00                     231      move.l  #0, d6
+00002272  4EB9 00326A92            232      jsr     DRAWIMAGE
+00002278                           233      
+00002278                           234      *Draw player 1 and 2 in end game positions
+00002278  41F9 003257BE            235      lea     DeadPlayer2, a0
+0000227E  7232                     236      move.l  #50, d1
+00002280  741E                     237      move.l  #30, d2
+00002282  263C 0000027C            238      move.l  #636, d3
+00002288  283C 00000230            239      move.l  #560, d4
+0000228E  7A00                     240      move.l  #0, d5
+00002290  7C00                     241      move.l  #0, d6
+00002292  4EB9 00326A92            242      jsr     DRAWIMAGE
+00002298                           243      
+00002298  23FC 0000000A 0000256E   244      move.l  #10, Player1X
+000022A2  23FC 0000021C 00002572   245      move.l  #540, Player1Y
+000022AC  2039 00002572            246      move.l  Player1Y, d0
+000022B2  E988                     247      lsl.l   #4, d0
+000022B4  23C0 00002572            248      move.l  d0, Player1Y
+000022BA  23FC 000000A0 00002576   249      move.l  #160, Player1ChunkX
+000022C4  4EB9 000023AA            250      jsr DrawPlayerCall
+000022CA                           251      
+000022CA                           252      *Halt music and play victory sound for player 1
+000022CA  123C 0001                253      move.b  #1, d1
+000022CE  7402                     254      move.l  #2, d2
+000022D0  704D                     255      move.l  #77, d0
+000022D2  4E4F                     256      trap    #15
+000022D4                           257      
+000022D4                           258  
+000022D4  7200                     259      move.l  #0,d1
+000022D6  7400                     260      move.l  #0,d2
+000022D8  7049                     261      move.l  #73,d0
+000022DA  4E4F                     262      Trap    #15
+000022DC                           263      
+000022DC                           264      *Get image on double buffer
+000022DC  103C 005E                265      move.b  #94, d0
+000022E0  4E4F                     266      trap    #15
+000022E2                           267      
+000022E2                           268      *Stay on screen until user presses space key
+000022E2                           269  PLAYER1WINLOOP
+000022E2  103C 0013                270      move.b          #GET_KEY_INPUT_COMMAND,d0
+000022E6  7220                     271      move.l          #$20,d1
+000022E8  4E4F                     272      TRAP            #15
+000022EA  0C81 00000000            273      cmpi.l          #0, d1
+000022F0  6600 FD68                274      BNE             ResetBattleVariables
+000022F4  60EC                     275      BRA             PLAYER1WINLOOP
+000022F6                           276      
+000022F6                           277      *Player 1's health has reached 0.  Do the same as above, but for player 2
+000022F6                           278  PLAYER2WINROUTINE    
+000022F6  4EB9 00002430            279      jsr     updatePlayersBackgrounds
+000022FC                           280      
+000022FC  4EB9 00327194            281      jsr     updateProjectile2Background
+00002302                           282      
+00002302  41F9 002F1132            283      lea     Player2WinsBanner, a0
+00002308  223C 000002BC            284      move.l  #700, d1
+0000230E  7464                     285      move.l  #100, d2
+00002310  7600                     286      move.l  #0, d3
+00002312  283C 0000012C            287      move.l  #300, d4
+00002318  7A00                     288      move.l  #0, d5
+0000231A  7C00                     289      move.l  #0, d6
+0000231C  4EB9 00326A92            290      jsr     DRAWIMAGE
+00002322                           291      
+00002322  23FC 0000027C 000025CE   292      move.l  #636, Player2X
+0000232C  23FC 0000021C 000025D2   293      move.l  #540, Player2Y
+00002336  2039 000025D2            294      move.l  Player2Y, d0
+0000233C  E988                     295      lsl.l   #FRAC_BITS, d0
+0000233E  23C0 000025D2            296      move.l  d0, Player2Y
+00002344  23FC 00000081 000025D6   297      move.l  #129, Player2ChunkX
+0000234E  4EB9 000023DE            298      jsr DrawPlayer2Call
+00002354                           299      
+00002354  123C 0001                300      move.b  #1, d1
+00002358  7402                     301      move.l  #2, d2
+0000235A  704D                     302      move.l  #77, d0
+0000235C  4E4F                     303      trap    #15
+0000235E                           304      
+0000235E                           305  
+0000235E  7200                     306      move.l  #0,d1
+00002360  7400                     307      move.l  #0,d2
+00002362  7049                     308      move.l  #73,d0
+00002364  4E4F                     309      Trap    #15
+00002366                           310      
+00002366  41F9 003245B8            311      lea     DeadPlayer1, a0
+0000236C  7232                     312      move.l  #50, d1
+0000236E  741E                     313      move.l  #30, d2
+00002370  760A                     314      move.l  #10, d3
+00002372  283C 00000230            315      move.l  #560, d4
+00002378  7A00                     316      move.l  #0, d5
+0000237A  7C00                     317      move.l  #0, d6
+0000237C  4EB9 00326A92            318      jsr     DRAWIMAGE
+00002382                           319      
+00002382                           320      
+00002382  103C 005E                321      move.b  #94, d0
+00002386  4E4F                     322      trap    #15
+00002388                           323  
+00002388                           324  PLAYER2WINLOOP
+00002388  103C 0013                325      move.b          #GET_KEY_INPUT_COMMAND,d0
+0000238C  7220                     326      move.l          #$20,d1
+0000238E  4E4F                     327      TRAP            #15
+00002390  0C81 00000000            328      cmpi.l          #0, d1
+00002396  6600 FCC2                329      BNE             ResetBattleVariables
+0000239A  60EC                     330      BRA             PLAYER2WINLOOP
+0000239C                           331      
+0000239C                           332  *-------------------------------------------*
+0000239C                           333              *Subroutines*
+0000239C                           334      
+0000239C                           335  *draw over projectile backgrounds and then draw the projectile in it's new position on screen
+0000239C                           336  updateProjectilesBackgrounds
+0000239C  4EB9 00327080            337      jsr     updateProjectilesBackGround
+000023A2  4EB9 00327194            338      jsr     updateProjectile2Background
+000023A8  4E75                     339      rts
+000023AA                           340  
+000023AA                           341  *Load in values of both player 1 and 2 and call draw sub routine
+000023AA                           342  DrawPlayerCall
+000023AA  41F9 0027DAFC            343      lea     Vegeta, a0
+000023B0  2239 00002566            344      move.l  Player1Width, d1
+000023B6  2439 0000256A            345      move.l  Player1Height, d2
+000023BC  2639 0000256E            346      move.l  Player1X, d3
+000023C2  2839 00002572            347      move.l  Player1Y, d4 
+000023C8  E84C                     348      lsr     #4, d4
+000023CA  2A39 00002576            349      move.l  Player1ChunkX, d5
+000023D0  2C39 0000257A            350      move.l  Player1ChunkY, d6
+000023D6  4EB9 00326A92            351      jsr     DRAWIMAGE
+000023DC                           352      
+000023DC  4E75                     353      rts   
+000023DE                           354  DrawPlayer2Call
+000023DE  41F9 0028F832            355      lea     Goku, a0
+000023E4  2239 000025C6            356      move.l  Player2Width, d1
+000023EA  2439 000025CA            357      move.l  Player2Height, d2
+000023F0  2639 000025CE            358      move.l  Player2X, d3
+000023F6  2839 000025D2            359      move.l  Player2Y, d4
+000023FC  E84C                     360      lsr     #FRAC_BITS, d4
+000023FE  2A39 000025D6            361      move.l  Player2ChunkX, d5
+00002404  2C39 000025DA            362      move.l  Player2ChunkY, d6
+0000240A  4EB9 00326A92            363      jsr     DRAWIMAGE
+00002410                           364      
+00002410  4E75                     365      rts
+00002412                           366      
+00002412                           367  *Draw the health bars of both players
+00002412                           368  DrawPlayer1Health
+00002412  41F9 002A1568            369      lea     Player1HealthImage, a0
+00002418  223C 000000C8            370      move.l  #200, d1
+0000241E  7432                     371      move.l  #50, d2
+00002420  7600                     372      move.l  #0, d3
+00002422  7800                     373      move.l  #0, d4
+00002424  7A00                     374      move.l  #0, d5
+00002426  7C00                     375      move.l  #0, d6
+00002428  4EB9 00326A92            376      jsr     DRAWIMAGE
+0000242E  4E75                     377      rts
+00002430                           378  *Draw the backgrounds of both players
+00002430                           379  updatePlayersBackgrounds
+00002430  41F9 000026DE            380      lea     BackGround, a0
+00002436  2239 00002566            381      move.l  Player1Width, d1
+0000243C  2439 0000256A            382      move.l  Player1Height, d2
+00002442  2639 0000256E            383      move.l  Player1X, d3
+00002448  2839 00002572            384      move.l  Player1Y, d4
+0000244E  E84C                     385      lsr     #FRAC_BITS, d4
+00002450  2A39 0000256E            386      move.l  Player1X, d5
+00002456  2C39 00002572            387      move.l  Player1Y, d6
+0000245C  E84E                     388      lsr     #FRAC_BITS, d6
+0000245E  4EB9 00326A92            389      jsr     DRAWIMAGE
+00002464  41F9 000026DE            390      lea     BackGround, a0
+0000246A  2239 000025C6            391      move.l  Player2Width, d1
+00002470  2439 000025CA            392      move.l  Player2Height, d2
+00002476  2639 000025CE            393      move.l  Player2X, d3
+0000247C  2839 000025D2            394      move.l  Player2Y, d4
+00002482  E84C                     395      lsr     #FRAC_BITS, d4
+00002484  2A39 000025CE            396      move.l  Player2X, d5
+0000248A  2C39 000025D2            397      move.l  Player2Y, d6
+00002490  E84E                     398      lsr     #FRAC_BITS, d6
+00002492  4EB9 00326A92            399      jsr     DRAWIMAGE
+00002498  4E75                     400      rts
+0000249A                           401      
+0000249A                           402  *Draw over both score backgrounds
+0000249A                           403  updateScoreBackGround
+0000249A  7050                     404      move.l      #80, d0
+0000249C  7200                     405      move.l      #$00000000, d1
+0000249E  4E4F                     406      trap        #15
+000024A0                           407      
+000024A0  7051                     408      move.l      #81, d0
+000024A2  7200                     409      move.l      #$00000000, d1
+000024A4  4E4F                     410      trap        #15
+000024A6                           411  
+000024A6  323C 00CD                412      move.w      #205, d1
+000024AA  343C 0005                413      move.w      #5, d2
+000024AE  363C 00EB                414      move.w      #235, d3
+000024B2  383C 0032                415      move.w      #50, d4
+000024B6  7057                     416      move.l      #87, d0
+000024B8  4E4F                     417      trap        #15
+000024BA                           418      
+000024BA  323C 01CC                419      move.w      #460, d1
+000024BE  343C 0005                420      move.w      #5, d2
+000024C2  363C 01EF                421      move.w      #495, d3
+000024C6  383C 0032                422      move.w      #50, d4
+000024CA  7057                     423      move.l      #87, d0
+000024CC  4E4F                     424      trap        #15
+000024CE                           425      
+000024CE  4E75                     426      rts
+000024D0                           427  *Draw over power up with background
+000024D0                           428  updatePowerUpBackGround
+000024D0  41F9 000026DE            429      lea         BackGround, a0
+000024D6  7234                     430      move.l      #52, d1
+000024D8  7434                     431      move.l      #52, d2
+000024DA  2639 00002626            432      move.l      PowerUpX, d3
+000024E0  2839 0000262A            433      move.l      PowerUpY, d4
+000024E6  2A39 00002626            434      move.l      PowerUpX, d5
+000024EC  2C39 0000262A            435      move.l      PowerUpY, d6
+000024F2  4EB9 00326A92            436      jsr         DRAWIMAGE
+000024F8  4E75                     437      rts
+000024FA                           438  *draw both players
+000024FA                           439  drawPlayers 
+000024FA                           440        
+000024FA  41F9 0027DAFC            441      lea     Vegeta, a0
+00002500  2239 00002566            442      move.l  Player1Width, d1
+00002506  2439 0000256A            443      move.l  Player1Height, d2
+0000250C  2639 0000256E            444      move.l  Player1X, d3
+00002512  2839 00002572            445      move.l  Player1Y, d4
+00002518  E84C                     446      lsr     #FRAC_BITS, d4
+0000251A  2A39 00002576            447      move.l  Player1ChunkX, d5
+00002520  2C39 0000257A            448      move.l  Player1ChunkY, d6
+00002526  4EB9 00326A92            449      jsr     DRAWIMAGE
+0000252C                           450      
+0000252C  41F9 0028F832            451      lea     Goku, a0
+00002532  2239 000025C6            452      move.l  Player2Width, d1
+00002538  2439 000025CA            453      move.l  Player2Height, d2
+0000253E  2639 000025CE            454      move.l  Player2X, d3
+00002544  2839 000025D2            455      move.l  Player2Y, d4
+0000254A  E84C                     456      lsr     #FRAC_BITS, d4
+0000254C  2A39 000025D6            457      move.l  Player2ChunkX, d5
+00002552  2C39 000025DA            458      move.l  Player2ChunkY, d6
+00002558  4EB9 00326A92            459      jsr     DRAWIMAGE
+0000255E                           460      
+0000255E  103C 005E                461      move.b  #94, d0
+00002562  4E4F                     462      trap    #15
+00002564                           463      
+00002564  4E75                     464      rts
+00002566                           465      
+00002566                           466      
+00002566                           467      
+00002566                           468  * Put variables and constants here
+00002566                           469  Player1Width
+00002566= 00000020                 470      dc.l   32
+0000256A                           471  Player1Height
+0000256A= 00000029                 472      dc.l   41 
+0000256E                           473  Player1X
+0000256E= 0000000A                 474      dc.l    10
+00002572                           475  Player1Y
+00002572= 00000226                 476      dc.l    550
+00002576                           477  Player1ChunkX
+00002576= 000000A0                 478      dc.l    160
+0000257A                           479  Player1ChunkY
+0000257A= 00000000                 480      dc.l    0
+0000257E                           481  Player1Speed
+0000257E= 0000000A                 482      dc.l    10
+00002582                           483  Player1Jumping
+00002582= 00000000                 484      dc.l    0
+00002586                           485  Player1Health
+00002586= 00000008                 486      dc.l    8
+0000258A                           487  Player1Left
+0000258A= 00000000                 488      dc.l    0
+0000258E                           489  Player1IdleSprite
+0000258E= 000000A0                 490      dc.l    160
+00002592                           491  Player1JumpSprite
+00002592= 00000100                 492      dc.l    256
+00002596                           493  Player1BeamSprite
+00002596= 000000E0                 494      dc.l    224   
+0000259A                           495  Player1DamageSprite
+0000259A= 00000120                 496      dc.l    288 
+0000259E                           497  Player1ProjectileActive
+0000259E= 00000000                 498      dc.l    0
+000025A2                           499  Player1ProjectileLeft
+000025A2= 00000000                 500      dc.l    0
+000025A6                           501  Player1ProjectileWidth
+000025A6= 00000010                 502      dc.l    16
+000025AA                           503  Player1ProjectileHeight
+000025AA= 0000000C                 504      dc.l    12
+000025AE                           505  Player1ProjectileX
+000025AE= 000002BC                 506      dc.l    700
+000025B2                           507  Player1ProjectileY
+000025B2= 00000000                 508      dc.l    0
+000025B6                           509  Player1ProjectileYOffset
+000025B6= 0000000A                 510      dc.l    10
+000025BA                           511  Player1ProjectileChunkX
+000025BA= 0000004A                 512      dc.l    74
+000025BE                           513  Player1ProjectileChunkY
+000025BE= 00000000                 514      dc.l    0
+000025C2                           515  Player1ProjectileDamage
+000025C2= 00000001                 516      dc.l    1
+000025C6                           517  Player2Width
+000025C6= 00000020                 518      dc.l   32
+000025CA                           519  Player2Height
+000025CA= 0000002E                 520      dc.l    46 
+000025CE                           521  Player2X
+000025CE= 0000027C                 522      dc.l    636
+000025D2                           523  Player2Y
+000025D2= 0000021C                 524      dc.l    540
+000025D6                           525  Player2ChunkX
+000025D6= 00000081                 526      dc.l    129
+000025DA                           527  Player2ChunkY
+000025DA= 00000000                 528      dc.l    0
+000025DE                           529  Player2Speed
+000025DE= 0000000A                 530      dc.l    10
+000025E2                           531  Player2Jumping
+000025E2= 00000000                 532      dc.l    0
+000025E6                           533  Player2Health
+000025E6= 00000005                 534      dc.l    5
+000025EA                           535  Player2Left
+000025EA= 00000001                 536      dc.l    1
+000025EE                           537  Player2IdleSprite
+000025EE= 00000081                 538      dc.l    129
+000025F2                           539  Player2JumpSprite
+000025F2= 00000020                 540      dc.l    32
+000025F6                           541  Player2BeamSprite
+000025F6= 00000040                 542      dc.l    64
+000025FA                           543  Player2DamageSprite
+000025FA= 00000000                 544      dc.l    0
+000025FE                           545  Player2ProjectileActive
+000025FE= 00000000                 546      dc.l    0
+00002602                           547  Player2ProjectileLeft
+00002602= 00000000                 548      dc.l    0
+00002606                           549  Player2ProjectileWidth
+00002606= 00000010                 550      dc.l    16
+0000260A                           551  Player2ProjectileHeight
+0000260A= 0000000C                 552      dc.l    12
+0000260E                           553  Player2ProjectileX
+0000260E= 000002BC                 554      dc.l    700
+00002612                           555  Player2ProjectileY
+00002612= 0000000A                 556      dc.l    10
+00002616                           557  Player2ProjectileYOffset
+00002616= 0000000A                 558      dc.l    10
+0000261A                           559  Player2ProjectileChunkX
+0000261A= 0000002A                 560      dc.l    42
+0000261E                           561  Player2ProjectileChunkY
+0000261E= 00000000                 562      dc.l    0
+00002622                           563  Player2ProjectileDamage
+00002622= 00000001                 564      dc.l    1
+00002626                           565  PowerUpX
+00002626= 00000145                 566      dc.l    325
+0000262A                           567  PowerUpY
+0000262A= 000000FA                 568      dc.l    250
+0000262E                           569  Ground
+0000262E= 00000226                 570      dc.l    550
+00002632                           571  Player1Velocity
+00002632= 00000000                 572      dc.l    0
+00002636                           573  Player2Velocity
+00002636= 00000000                 574      dc.l    0
+0000263A                           575  ProjectileSpeed
+0000263A= 00000014                 576      dc.l    20
+0000263E                           577  ActivePowerUp
+0000263E= 00000000                 578      dc.l    0
+00002642                           579  Player1ScoreX
+00002642= 000000C8                 580      dc.l    200
+00002646                           581  Player2ScoreX
+00002646= 000001CC                 582      dc.l    460
+0000264A                           583  PowerUpActivationTime
+0000264A= 00000000                 584      dc.l    0
+0000264E                           585  PowerUpGrabbed
+0000264E= 00000000                 586      dc.l    0
+00002652                           587      
+00002652                           588      
+00002652                           589  *sounds declared here
+00002652                           590  TitleMusic
+00002652= 5469746C 65736372 ...    591      dc.l    'Titlescreen.wav',0
+00002666                           592  BattleMusic
+00002666= 496E6761 6D652E77 ...    593      dc.l    'Ingame.wav',0
+00002676                           594  SuperVegeta
+00002676= 53757065 72566567 ...    595      dc.l    'SuperVegeta.wav',0
+0000268A                           596  SuperGoku    
+0000268A= 53757065 72476F6B ...    597      dc.l    'SuperGoku.wav',0
+0000269E                           598  KiBlastSound
+0000269E= 6B69626C 6173742E ...    599      dc.l    'kiblast.wav',0
+000026AE                           600  KamehamehaSound
+000026AE= 4B616D65 68616D65 ...    601      dc.l    'Kamehameha.wav',0
+000026C2                           602  BigBangSound
+000026C2= 62696742 616E672E ...    603      dc.l    'bigBang.wav',0
+000026D2                           604  JumpSound    
+000026D2= 6A756D70 2E776176 ...    605      dc.l    'jump.wav', 0
+000026DE                           606      
+000026DE                           607  *images declared here    
+000026DE                           608  Background
+000026DE                           609      INCBIN "Game1.bmp"
+00136148                           610  LoadingImage
+00136148                           611      INCBIN "loadinggame.bmp"
+0014A092                           612  TitleScreen
+0014A092                           613      INCBIN "Titlesmall.bmp"
+0027DAFC                           614  Vegeta
+0027DAFC                           615      INCBIN "Runners.bmp"
+0028F832                           616  Goku
+0028F832                           617      INCBIN "Enemy.bmp"
+002A1568                           618  Player1HealthImage
+002A1568                           619      INCBIN "RunnerHealth.bmp"
+002AB23E                           620  PowerUp
+002AB23E                           621      INCBIN "Dragonball.bmp" 
+002AD224                           622  Player2HealthImage
+002AD224                           623      INCBIN "Player2Health.bmp"
+002B478A                           624  SmallBeam
+002B478A                           625      INCBIN "smallBeam.bmp"
+002B4C40                           626  Kamehameha
+002B4C40                           627      INCBIN "Kamehameha.bmp"
+002BAD96                           628  BigBang
+002BAD96                           629      INCBIN "bigBang.bmp"
+002BDCAC                           630  
+002BDCAC                           631  Player1WinsBanner
+002BDCAC                           632      INCBIN "Player1Wins.bmp"
+002F1132                           633  Player2WinsBanner
+002F1132                           634      INCBIN "Player2Wins.bmp"
+003245B8                           635  DeadPlayer1
+003245B8                           636      INCBIN "DeadVegeta.bmp"
+003257BE                           637  DeadPlayer2
+003257BE                           638      INCBIN "GokuLost.bmp"     
+003269C4                           639      
+003269C4                           640  *include other files 
+003269C4                           641   include "DrawPixels.x68"  
+003269C4                           642  
+003269C4                           643  ;EQUs for trap code calls
+003269C4  =00000050                644  PenColorCode      EQU     80
+003269C4  =00000052                645  DrawPixelCode     EQU     82
+003269C4  =00000021                646  ScreenChangeCode  EQU     33
+003269C4                           647  
+003269C4                           648  DrawChunk
+003269C4                           649  ;reads in file information and user input
+003269C4                           650  ;and sets the variables at the bottom and on stack
+003269C4                           651  ;which will be used to draw the chunk of the bmp file
+003269C4                           652  
+003269C4  206F 0004                653          move.l  4(sp), a0               ;store the pointer to the image data into an address for access
+003269C8  2028 000A                654          move.l  10(a0), d0              ;grab the offset from header to pixels
+003269CC  E158                     655          rol.w   #8, d0                  ;rotate the word by 8 to move offset to appropriate position          
+003269CE  4840                     656          swap    d0                      ;now swap the words of the offset for the next rotate
+003269D0  E158                     657          rol.w   #8, d0                  ;finally rotate the words one time to make the true offset value readable
+003269D2  D0C0                     658          add.w   d0, a0                  ;change position in memory to pixel data
+003269D4                           659          
+003269D4                           660          *Calculate beginning position of chunk to draw from Y position
+003269D4  4284                     661          clr.l   d4
+003269D6  282F 0024                662          move.l  36(sp),d4
+003269DA  2A2F 0014                663          move.l  20(sp), d5
+003269DE  DAAF 000C                664          add.l   12(sp), d5
+003269E2  9885                     665          sub.l   d5, d4
+003269E4  4285                     666          clr.l   d5
+003269E6  3A04                     667          move.w  d4, d5
+003269E8  4284                     668          clr.l   d4
+003269EA                           669          
+003269EA  282F 0020                670          move.l  32(sp), d4
+003269EE                           671          
+003269EE  CAC4                     672          mulu.w  d4, d5
+003269F0                           673          *set position in address at the beginning of chunk draw
+003269F0  D1C5                     674          add.l   d5, a0
+003269F2  D1C5                     675          add.l   d5, a0 
+003269F4  D1C5                     676          add.l   d5, a0    
+003269F6                           677           
+003269F6                           678           
+003269F6                           679           
+003269F6                           680                 
+003269F6  262F 000C                681          move.l  12(sp), d3
+003269FA                           682          
+003269FA                           683  OUTERLOOP
+003269FA  3C3C 0000                684          move.w  #0, d6                  ;set or reset x counter for for loop
+003269FE  282F 0010                685          move.l  16(sp), d4
+00326A02  C8FC 0003                686          mulu.w  #3, d4
+00326A06  D0C4                     687          add.w   d4, a0                  ;add start of x to 0
+00326A08                           688          
+00326A08                           689  INNERLOOP
+00326A08  4284                     690          clr.l   d4                      ;make sure d4 has nothing in it
+00326A0A  1818                     691          move.b  (a0)+,d4                ;grab the first pixel
+00326A0C  4844                     692          swap.w  d4                      ;swap the pixel to change its position in memory for the rest of the pixel data
+00326A0E  4285                     693          clr.l   d5                      ;make sure d5 is also clear
+00326A10  2A04                     694          move.l  d4, d5                  ;store previously found pixel data in d5 for next value
+00326A12  4284                     695          clr.l   d4                      ;clear d4 for the next bit of memory
+00326A14  1818                     696          move.b  (a0)+, d4               ;grab next memory bit
+00326A16  E14C                     697          lsl     #8, d4                  ;shift left to get pixel in top of second word to combine with previous pixel bit
+00326A18  DA84                     698          add.l   d4, d5                  ;combine the data
+00326A1A  4284                     699          clr.l   d4                      ;clear d4 once again
+00326A1C  1818                     700          move.b  (a0)+, d4               ;get last bit needed
+00326A1E  DA84                     701          add.l   d4, d5                  ;combine it to the end of the previous two bits to get the pixel value
+00326A20                           702          
+00326A20                           703          
+00326A20  4284                     704          clr.l   d4                      ;If pixel is pink, do not draw it
+00326A22  1838 00FF                705          move.b  $FF, d4
+00326A26  4844                     706          swap    d4
+00326A28  1838 00FF                707          move.b  $FF, d4
+00326A2C                           708          
+00326A2C  BA44                     709          cmp     d4, d5
+00326A2E  6700 0006                710          BEQ     INCREMENT
+00326A32                           711          
+00326A32  6000 0044                712          BRA     DRAWPIXEL               ;pixel meets criteria and can be printed
+00326A36                           713          
+00326A36                           714  INCREMENT
+00326A36  4284                     715          clr.l   d4                      ;make sure d4 is empty for use  
+00326A38  5246                     716          add.w   #1,d6                   ;increment x counter by one
+00326A3A                           717          
+00326A3A                           718          *Check for end of X row
+00326A3A  282F 0010                719          move.l  16(sp), d4
+00326A3E  D886                     720          add.l   d6, d4
+00326A40  2A2F 0020                721          move.l  32(sp), d5
+00326A44  B845                     722          cmp     d5, d4
+00326A46  6700 0022                723          BEQ     INCREMENTY
+00326A4A                           724        
+00326A4A  282F 0008                725          move.l  8(sp), d4               ;move width of image into register
+00326A4E  BC44                     726          cmp     d4, d6                  ;see if counter is beyond x bounds
+00326A50  66B6                     727          BNE     INNERLOOP               ;if it is not, loop again
+00326A52                           728          
+00326A52                           729          ;skip after outside of box on x axis
+00326A52  4284                     730          clr.l   d4
+00326A54  282F 0010                731          move.l  16(sp), d4
+00326A58  D8AF 0008                732          add.l   8(sp), d4
+00326A5C  4285                     733          clr.l   d5
+00326A5E  2A2F 0020                734          move.l  32(sp), d5
+00326A62  9A84                     735          sub.l   d4, d5
+00326A64  CAFC 0003                736          mulu.w  #3, d5
+00326A68                           737          ;add offset to address
+00326A68  D1C5                     738          add.l   d5, a0
+00326A6A                           739  
+00326A6A                           740  INCREMENTY        
+00326A6A                           741          ;take care of padding
+00326A6A  D1F9 00326B06            742          add.l   Padding, a0             ;add padding.  If there is none, the address won't skip anything
+00326A70                           743          
+00326A70  5343                     744          sub.w   #1, d3                  ;decrement y counter to see if you are out of the y iteration
+00326A72  6686                     745          BNE     OUTERLOOP               ;if it is not, loop back to outer loop
+00326A74  6000 001A                746          BRA     ENDROUTINE              ;branch to end of subroutine, whole image has been iterated
+00326A78                           747          
+00326A78                           748  DRAWPIXEL
+00326A78  2205                     749          move.l  d5, d1                  ;move pixel data into d1 for pen color
+00326A7A  7050                     750          move.l  #PenColorCode, d0       ;set trap code for setting the pen color
+00326A7C  4E4F                     751          trap    #15                     ;set pen color
+00326A7E                           752                           
+00326A7E  222F 0018                753          move.l   24(sp), d1             ;store the starting x position of the chunk
+00326A82  D286                     754          add.l    d6, d1                 ;add iteration position of x to start of chunk
+00326A84                           755          
+00326A84  242F 001C                756          move.l  28(sp), d2              ;start at top of chunk to flip image
+00326A88  D483                     757          add.l   d3, d2                  ;subtract current y position
+00326A8A  7052                     758          move.l  #DrawPixelCode, d0      ;Set trap code to draw pixel at position
+00326A8C  4E4F                     759          trap    #15                     ;draw pixel at position
+00326A8E                           760          
+00326A8E  60A6                     761          BRA     INCREMENT               ;increment position
+00326A90                           762          
+00326A90                           763  ENDROUTINE
+00326A90  4E75                     764          rts                             ;branch back to end of program
+00326A92                           765  
+00326A92                           766  DRAWIMAGE
+00326A92                           767          *Reset padding for multiple calls
+00326A92  23FC 00000000 00326B06   768          move.l  #0, Padding
+00326A9C                           769          
+00326A9C  7024                     770          move.l  #36, d0                 ;number of 7 4 byte arguments to prepare stack to receive
+00326A9E  9FC0                     771          sub.l   d0, sp                  ;prepare stack to receive arguments 
+00326AA0                           772          
+00326AA0  2E88                     773          move.l  a0, (sp)                ;load pointer to the .bmp file onto the stack
+00326AA2                           774          
+00326AA2                           775          ;store width of chunk on the stack
+00326AA2  2F41 0004                776          move.l  d1, 4(sp)
+00326AA6                           777          ;store height of the chunk on the stack 
+00326AA6  2F42 0008                778          move.l  d2, 8(sp)               
+00326AAA                           779          
+00326AAA                           780          ;add start of chunk to move with image
+00326AAA  2F45 000C                781          move.l   d5, 12(sp)             ;store Top left x of draw chunk on stack
+00326AAE                           782          
+00326AAE                           783          ;subtract y position from height to get start y
+00326AAE  2F46 0010                784          move.l  d6, 16(sp)              ;store Top left y of draw chunk on stack                      
+00326AB2                           785  
+00326AB2  2F43 0014                786          move.l  d3, 20(sp)              ;store Beginning print location for x axis on stack
+00326AB6  2F44 0018                787          move.l  d4, 24(sp)              ;store Beginning print location for y axis on stack
+00326ABA                           788          
+00326ABA  2228 0012                789          move.l  18(a0), d1              ;get width of image from .bmp file
+00326ABE  E159                     790          rol.w   #8, d1          
+00326AC0  4841                     791          swap    d1
+00326AC2  E159                     792          rol.w   #8, d1                  ;rotate and swap long word to get true width value to use later
+00326AC4  2F41 001C                793          move.l  d1, 28(sp)              ;store width of image to make variable not global
+00326AC8                           794  
+00326AC8                           795          
+00326AC8                           796          ;calculate for padding.  
+00326AC8                           797          ;This only concerns width
+00326AC8  7404                     798          move.l  #4, d2                  ;move 4 into register for padding calculation
+00326ACA  C2FC 0003                799          mulu.w  #3, d1                  ;multiply image width by 3 for formula
+00326ACE  82FC 0004                800          divu.w  #4, d1                  ;divide by four to find remainder
+00326AD2  4841                     801          swap    d1                      ;swap remainder into lower word
+00326AD4  4284                     802          clr.l   d4                      ;make sure d4 is empty
+00326AD6  383C 0000                803          move.w  #0, d4                  ;move 0 into d4 
+00326ADA  B841                     804          cmp.w   d1, d4                  ;if equal, there is no padding
+00326ADC  6700 000A                805          BEQ     RUNPROGRAM              ;continue in program for special case of being divisible by 4
+00326AE0                           806          
+00326AE0                           807  ACCOUNTFORPADDING
+00326AE0  9441                     808          sub.w   d1, d2                  ;subtract remainder from 4 to get padding
+00326AE2  23C2 00326B06            809          move.l  d2, Padding             ;store padding for later use
+00326AE8                           810          
+00326AE8                           811          
+00326AE8                           812  RUNPROGRAM       
+00326AE8  2428 0016                813          move.l  22(a0), d2              ;get height of image from .bmp file
+00326AEC  E15A                     814          rol.w   #8, d2          
+00326AEE  4842                     815          swap    d2
+00326AF0  E15A                     816          rol.w   #8, d2                  ;rotate and swap long word to get true height value to use later
+00326AF2  2F42 0020                817          move.l  d2, 32(sp)              ;store height of image to make variable not global
+00326AF6                           818  
+00326AF6  4EB9 003269C4            819          jsr     DrawChunk               ;call subroutine to draw chunk of image       
+00326AFC                           820         
+00326AFC  4280                     821          clr.l   d0
+00326AFE  7024                     822          move.l  #36, d0                
+00326B00  DFC0                     823          add.l   d0, sp                  ;fix stack
+00326B02                           824          
+00326B02  4287                     825          clr.l   d7
+00326B04                           826          
+00326B04  4E75                     827          rts
+00326B06                           828  
+00326B06                           829  Padding
+00326B06= 00000000                 830          dc.l    0
+00326B0A                           831  
+00326B0A                           832  
+00326B0A                           833  
+00326B0A                           834  
+00326B0A                           835  
+00326B0A                           836  
+00326B0A                           837  
+00326B0A                           838  
+00326B0A                           839  
+00326B0A                           840  
+00326B0A                           841  
+00326B0A                           842  
+00326B0A                           843  
+00326B0A                           844  
+00326B0A                           845  
+00326B0A                           846  
+00326B0A                           847  
+00326B0A                           848  
+00326B0A                           849  
+00326B0A                           850  
+00326B0A                           851  
+00326B0A                           852  
+00326B0A                           853  
+00326B0A                           854  
+00326B0A                           855  
+00326B0A                           856  
+00326B0A                           857  
+00326B0A                           858  
+00326B0A                           859  
+00326B0A                           860  
+00326B0A                           861  
+00326B0A                           862  
+00326B0A                           863  
+00326B0A                           864  -------------------- end include --------------------
+00326B0A                           865   include "playerInput.x68"
+00326B0A                           866  
+00326B0A                           867  
+00326B0A                           868  ALL_REG                 REG     D0-D7/A0-A6
+00326B0A  =00000013                869  GET_KEY_INPUT_COMMAND   equ     19        
+00326B0A                           870  
+00326B0A                           871  initPlayerInput
+00326B0A                           872          *ASCII CODE 25 = 0
+00326B0A  7420                     873          move.l          #$20,d2
+00326B0C                           874  inputLoop
+00326B0C  4280                     875          clr.l           d0   
+00326B0E  103C 0013                876          move.b          #GET_KEY_INPUT_COMMAND,d0
+00326B12  2202                     877          move.l          d2,d1
+00326B14  4E4F                     878          TRAP            #15
+00326B16  0C01 0000                879          cmpi.b          #0,d1
+00326B1A  6700 0008                880          beq             noCall
+00326B1E  4EB9 00326B2E            881          jsr             callFunction
+00326B24                           882  noCall
+00326B24  5282                     883          add.l           #1,d2          
+00326B26  0C02 005A                884          cmpi.b          #$5A,d2
+00326B2A  66E0                     885          bne             inputLoop
+00326B2C                           886       
+00326B2C                           887  
+00326B2C                           888          *end of input, return
+00326B2C  4E75                     889          rts
+00326B2E                           890  
+00326B2E                           891  callFunction
+00326B2E  48E7 FFFE                892          movem.l ALL_REG,-(sp)
+00326B32                           893  
+00326B32  0482 00000020            894          sub.l   #$20,d2
+00326B38  E58A                     895          lsl.l   #2,d2
+00326B3A  2230 2000                896          move.l  (a0,d2),d1
+00326B3E  0C81 00000000            897          cmpi.l  #0,d1
+00326B44  6700 0006                898          beq     noFuncPtr
+00326B48  2241                     899          move.l  d1,a1
+00326B4A  4E91                     900          jsr     (a1)  
+00326B4C                           901  noFuncPtr
+00326B4C  4CDF 7FFF                902          movem.l (sp)+,ALL_REG
+00326B50  4E75                     903          rts
+00326B52                           904  
+00326B52                           905  
+00326B52                           906  
+00326B52                           907  
+00326B52                           908  
+00326B52                           909          
+00326B52                           910  
+00326B52                           911  
+00326B52                           912  
+00326B52                           913  
+00326B52                           914  
+00326B52                           915  
+00326B52                           916  
+00326B52                           917  
+00326B52                           918  
+00326B52                           919  
+00326B52                           920  
+00326B52                           921  
+00326B52                           922  
+00326B52                           923  
+00326B52                           924  
+00326B52                           925  
+00326B52                           926  
+00326B52                           927  
+00326B52                           928  
+00326B52                           929  
+00326B52                           930  
+00326B52                           931  
+00326B52                           932  
+00326B52                           933  
+00326B52                           934  
+00326B52                           935  
+00326B52                           936  
+00326B52                           937  
+00326B52                           938  -------------------- end include --------------------
+00326B52                           939   include "healthDisplay.x68"
+00326B52                           940  
+00326B52                           941  updateHealth
+00326B52                           942      *get the position of the current health based on the player health passed in
+00326B52  207C 00326C94            943      move.l      #zeroDigit, a0
+00326B58                           944      *multiply digit by 4 to get correct hex number at the end of the file
+00326B58  E588                     945      lsl.l       #2, d0
+00326B5A  D1C0                     946      add.l       d0, a0    
+00326B5C                           947      *store the current hex value of health
+00326B5C  2C10                     948      move.l      (a0), d6
+00326B5E                           949      
+00326B5E                           950      *Change pen to white for each segment
+00326B5E  7050                     951      move.l      #80, d0
+00326B60  223C 00FFFFFF            952      move.l      #$00FFFFFF, d1
+00326B66  4E4F                     953      trap        #15
+00326B68                           954      
+00326B68  7051                     955      move.l      #81, d0
+00326B6A  223C 00FFFFFF            956      move.l      #$00FFFFFF, d1
+00326B70  4E4F                     957      trap        #15
+00326B72                           958  
+00326B72                           959  GDigitRoutine
+00326B72  2206                     960      move.l      d6, d1     
+00326B74  C2BC 00000001            961      AND.l       #1, d1
+00326B7A  6700 001C                962      BEQ         FDigitRoutine
+00326B7E  323C 0005                963      move.w      #5, d1
+00326B82  D285                     964      add.l       d5, d1
+00326B84  343C 0014                965      move.w      #20, d2
+00326B88  363C 0023                966      move.w      #35, d3
+00326B8C  D685                     967      add.l       d5, d3
+00326B8E  383C 001E                968      move.w      #30, d4
+00326B92  4EB9 00326C8C            969      jsr         DrawDigitPosition
+00326B98                           970  FDigitRoutine
+00326B98  E88E                     971      lsr.l         #4, d6
+00326B9A  2206                     972      move.l      d6, d1
+00326B9C  C2BC 00000001            973      AND.l       #1, d1
+00326BA2  6700 001C                974      BEQ         EDigitRoutine
+00326BA6  323C 0005                975      move.w      #5, d1
+00326BAA  D285                     976      add.l       d5, d1
+00326BAC  343C 0005                977      move.w      #5, d2
+00326BB0  363C 000F                978      move.w      #15, d3
+00326BB4  D685                     979      add.l       d5, d3
+00326BB6  383C 0019                980      move.w      #25, d4
+00326BBA  4EB9 00326C8C            981      jsr         DrawDigitPosition
+00326BC0                           982  EDigitRoutine
+00326BC0  E88E                     983      lsr.l         #4, d6
+00326BC2  2206                     984      move.l      d6, d1
+00326BC4  C2BC 00000001            985      AND.l       #1, d1
+00326BCA  6700 001C                986      BEQ         DDigitRoutine
+00326BCE  323C 0005                987      move.w      #5, d1
+00326BD2  D285                     988      add.l       d5, d1
+00326BD4  343C 0019                989      move.w      #25, d2
+00326BD8  363C 000F                990      move.w      #15, d3
+00326BDC  D685                     991      add.l       d5, d3
+00326BDE  383C 002D                992      move.w      #45, d4
+00326BE2  4EB9 00326C8C            993      jsr         DrawDigitPosition
+00326BE8                           994  DDigitRoutine
+00326BE8  E88E                     995      lsr.l         #4, d6
+00326BEA  2206                     996      move.l      d6, d1
+00326BEC  C2BC 00000001            997      AND.l       #1, d1
+00326BF2  6700 001C                998      BEQ         CDigitRoutine
+00326BF6  323C 0005                999      move.w      #5, d1
+00326BFA  D285                    1000      add.l       d5, d1
+00326BFC  343C 0023               1001      move.w      #35, d2
+00326C00  363C 0023               1002      move.w      #35, d3
+00326C04  D685                    1003      add.l       d5, d3
+00326C06  383C 002D               1004      move.w      #45, d4
+00326C0A  4EB9 00326C8C           1005      jsr         DrawDigitPosition
+00326C10                          1006  CDigitRoutine
+00326C10  E88E                    1007      lsr.l         #4, d6
+00326C12  2206                    1008      move.l      d6, d1
+00326C14  C2BC 00000001           1009      AND.l       #1, d1
+00326C1A  6700 001C               1010      BEQ         BDigitRoutine
+00326C1E  323C 0019               1011      move.w      #25, d1
+00326C22  D285                    1012      add.l       d5, d1
+00326C24  343C 0019               1013      move.w      #25, d2
+00326C28  363C 0023               1014      move.w      #35, d3
+00326C2C  D685                    1015      add.l       d5, d3
+00326C2E  383C 002D               1016      move.w      #45, d4
+00326C32  4EB9 00326C8C           1017      jsr         DrawDigitPosition
+00326C38                          1018  BDigitRoutine
+00326C38  E88E                    1019      lsr.l         #4, d6
+00326C3A  2206                    1020      move.l      d6, d1
+00326C3C  C2BC 00000001           1021      AND.l       #1, d1
+00326C42  6700 001C               1022      BEQ         ADigitRoutine
+00326C46  323C 0019               1023      move.w      #25, d1
+00326C4A  D285                    1024      add.l       d5, d1
+00326C4C  343C 0005               1025      move.w      #5, d2
+00326C50  363C 0023               1026      move.w      #35, d3
+00326C54  D685                    1027      add.l       d5, d3
+00326C56  383C 0019               1028      move.w      #25, d4
+00326C5A  4EB9 00326C8C           1029      jsr         DrawDigitPosition
+00326C60                          1030  ADigitRoutine
+00326C60  E88E                    1031      lsr.l         #4, d6
+00326C62  2206                    1032      move.l      d6, d1
+00326C64  C2BC 00000001           1033      AND.l       #1, d1
+00326C6A  6700 0026               1034      BEQ         FinishHealth
+00326C6E  323C 0005               1035      move.w      #5, d1
+00326C72  D285                    1036      add.l       d5, d1
+00326C74  343C 0005               1037      move.w      #5, d2
+00326C78  363C 0023               1038      move.w      #35, d3
+00326C7C  D685                    1039      add.l       d5, d3
+00326C7E  383C 000F               1040      move.w      #15, d4
+00326C82  4EB9 00326C8C           1041      jsr         DrawDigitPosition
+00326C88                          1042      
+00326C88  6000 0008               1043      BRA         FinishHealth
+00326C8C                          1044  DrawDigitPosition
+00326C8C  7057                    1045      move.l      #87, d0
+00326C8E  4E4F                    1046      trap        #15
+00326C90  4E75                    1047      rts
+00326C92                          1048  
+00326C92                          1049  FinishHealth
+00326C92  4E75                    1050      rts
+00326C94                          1051  
+00326C94                          1052  zeroDigit   
+00326C94= 01111110                1053      dc.l    $01111110
+00326C98                          1054  oneDigit    
+00326C98= 00110000                1055      dc.l    $00110000
+00326C9C                          1056  twoDigit    
+00326C9C= 01101101                1057      dc.l    $01101101
+00326CA0                          1058  threeDigit  
+00326CA0= 01111001                1059      dc.l    $01111001
+00326CA4                          1060  fourDigit   
+00326CA4= 00110011                1061      dc.l    $00110011
+00326CA8                          1062  fiveDigit       
+00326CA8= 01011011                1063      dc.l    $01011011
+00326CAC                          1064  sixDigit    
+00326CAC= 01011111                1065      dc.l    $01011111
+00326CB0                          1066  sevenDigit  
+00326CB0= 01110000                1067      dc.l    $01110000
+00326CB4                          1068  eightDigit  
+00326CB4= 01111111                1069      dc.l    $01111111
+00326CB8                          1070  nineDigit   
+00326CB8= 01111011                1071      dc.l    $01111011
+00326CBC                          1072  
+00326CBC                          1073  
+00326CBC                          1074  
+00326CBC                          1075  
+00326CBC                          1076  
+00326CBC                          1077  
+00326CBC                          1078  
+00326CBC                          1079  
+00326CBC                          1080  -------------------- end include --------------------
+00326CBC                          1081   include "PowerUpCollision.x68"
+00326CBC                          1082  
+00326CBC                          1083  
+00326CBC                          1084  CheckForPlayerCollision
+00326CBC  2238 263E               1085      move.l  ActivePowerUp, d1
+00326CC0  0C81 00000001           1086      cmpi.l  #1, d1
+00326CC6  6600 0166               1087      BNE     exitCollision
+00326CCA                          1088  
+00326CCA  2238 25CE               1089      move.l  Player2X, d1
+00326CCE  2438 25D2               1090      move.l  Player2Y, d2
+00326CD2  E88A                    1091      lsr.l   #4, d2
+00326CD4  2638 2626               1092      move.l  PowerUpX, d3
+00326CD8  2838 262A               1093      move.l  PowerUpY, d4
+00326CDC                          1094      
+00326CDC  0681 00000020           1095      add.l   #32, d1 
+00326CE2  B641                    1096      cmp     d1, d3
+00326CE4  6E00 0036               1097      BGT     Player1Collision
+00326CE8                          1098      
+00326CE8  0481 00000020           1099      sub.l   #32, d1
+00326CEE  0683 00000034           1100      add.l   #52, d3
+00326CF4  B641                    1101      cmp     d1, d3
+00326CF6  6D00 0024               1102      BLT     Player1Collision
+00326CFA                          1103      
+00326CFA  0682 0000002E           1104      add.l   #46, d2
+00326D00  B842                    1105      cmp     d2, d4
+00326D02  6E00 0018               1106      BGT     Player1Collision
+00326D06                          1107      
+00326D06  0482 0000002E           1108      sub.l   #46, d2
+00326D0C  0684 00000034           1109      add.l   #52, d4
+00326D12  B842                    1110      cmp     d2, d4
+00326D14  6D00 0006               1111      BLT     Player1Collision
+00326D18  6000 00B2               1112      BRA     powerUpPlayer2
+00326D1C                          1113  
+00326D1C                          1114      
+00326D1C                          1115  Player1Collision
+00326D1C  2238 256E               1116      move.l  Player1X, d1
+00326D20  2438 2572               1117      move.l  Player1Y, d2
+00326D24  E88A                    1118      lsr.l   #4, d2
+00326D26  2638 2626               1119      move.l  PowerUpX, d3
+00326D2A  2838 262A               1120      move.l  PowerUpY, d4
+00326D2E                          1121      
+00326D2E  0681 00000020           1122      add.l   #32, d1 
+00326D34  B641                    1123      cmp     d1, d3
+00326D36  6E00 00F6               1124      BGT     exitCollision
+00326D3A                          1125      
+00326D3A  0481 00000020           1126      sub.l   #32, d1
+00326D40  0683 00000034           1127      add.l   #52, d3
+00326D46  B641                    1128      cmp     d1, d3
+00326D48  6D00 00E4               1129      BLT     exitCollision
+00326D4C                          1130      
+00326D4C  0682 00000029           1131      add.l   #41, d2
+00326D52  B842                    1132      cmp     d2, d4
+00326D54  6E00 00D8               1133      BGT     exitCollision
+00326D58                          1134      
+00326D58  0482 00000029           1135      sub.l   #41, d2
+00326D5E  0684 00000034           1136      add.l   #52, d4
+00326D64  B842                    1137      cmp     d2, d4
+00326D66  6D00 00C6               1138      BLT     exitCollision
+00326D6A                          1139      
+00326D6A                          1140  powerUpPlayer1
+00326D6A  06B8 00000029 257A      1141      add.l   #41, Player1ChunkY
+00326D72  21FC 00000120 2576      1142      move.l  #288, Player1ChunkX
+00326D7A  4EB8 24D0               1143      jsr     updatePowerUpBackGround
+00326D7E  4EB8 2430               1144      jsr     updatePlayersBackgrounds
+00326D82  103C 005E               1145      move.b  #94, d0
+00326D86  4E4F                    1146      trap    #15
+00326D88                          1147      
+00326D88  21FC 00000032 25A6      1148      move.l  #50, Player1ProjectileWidth
+00326D90  21FC 00000028 25AA      1149      move.l  #40, Player1ProjectileHeight
+00326D98  21F8 259A 2576          1150      move.l  Player1DamageSprite, Player1ChunkX
+00326D9E  21FC 00000005 25B6      1151      move.l  #5, Player1ProjectileYOffset
+00326DA6  21FC 00000002 25C2      1152      move.l  #2, Player1ProjectileDamage
+00326DAE                          1153      
+00326DAE  43F8 2676               1154      lea     SuperVegeta, a1
+00326DB2  7200                    1155      move.l  #0, d1
+00326DB4  7400                    1156      move.l  #0, d2
+00326DB6  7049                    1157      move.l  #73, d0
+00326DB8  4E4F                    1158      trap    #15  
+00326DBA                          1159      
+00326DBA  21FC 00000000 263E      1160      move.l  #0, ActivePowerUp
+00326DC2  21FC 00000001 264E      1161      move.l  #1, PowerUPGrabbed
+00326DCA  4E75                    1162      rts
+00326DCC                          1163  
+00326DCC                          1164  powerUpPlayer2
+00326DCC                          1165  
+00326DCC  06B8 0000002E 25DA      1166      add.l   #46, Player2ChunkY
+00326DD4  21FC 00000120 25D6      1167      move.l  #288, Player2ChunkX
+00326DDC  4EB8 24D0               1168      jsr     updatePowerUpBackGround
+00326DE0  4EB8 2430               1169      jsr     updatePlayersBackgrounds
+00326DE4  103C 005E               1170      move.b  #94, d0
+00326DE8  4E4F                    1171      trap    #15
+00326DEA                          1172      
+00326DEA  21FC 0000004A 2606      1173      move.l  #74, Player2ProjectileWidth
+00326DF2  21FC 00000038 260A      1174      move.l  #56, Player2ProjectileHeight
+00326DFA  21F8 25FA 25D6          1175      move.l  Player2DamageSprite, Player2ChunkX
+00326E00  21FC FFFFFFFE 2616      1176      move.l  #-2, Player2ProjectileYOffset
+00326E08  21FC 00000002 2622      1177      move.l  #2, Player2ProjectileDamage
+00326E10                          1178      
+00326E10  43F8 268A               1179      lea     SuperGoku, a1
+00326E14  7200                    1180      move.l  #0, d1
+00326E16  7400                    1181      move.l  #0, d2
+00326E18  7049                    1182      move.l  #73, d0
+00326E1A  4E4F                    1183      trap    #15
+00326E1C                          1184      
+00326E1C  21FC 00000000 263E      1185      move.l  #0, ActivePowerUp
+00326E24  21FC 00000001 264E      1186      move.l  #1, PowerUPGrabbed
+00326E2C  4E75                    1187      rts
+00326E2E                          1188  
+00326E2E                          1189  exitCollision
+00326E2E  4E75                    1190      rts
+00326E30                          1191  
+00326E30                          1192  
+00326E30                          1193  
+00326E30                          1194  
+00326E30                          1195  
+00326E30                          1196  
+00326E30                          1197  
+00326E30                          1198  
+00326E30                          1199  
+00326E30                          1200  
+00326E30                          1201  
+00326E30                          1202  -------------------- end include --------------------
+00326E30                          1203   include "ProjectileRoutines.x68"
+00326E30                          1204  
+00326E30                          1205  
+00326E30                          1206  spawnPlayer1Projectile
+00326E30                          1207      *Check if the player already has a projectile active.  If it does, do not spawn another
+00326E30  21FC 00000001 259E      1208      move.l  #1, Player1ProjectileActive
+00326E38  2238 258A               1209      move.l  Player1Left, d1
+00326E3C  0C81 00000001           1210      cmpi.l  #1, d1
+00326E42  6700 008A               1211      BEQ     spawnPlayer1ProjectileLeft
+00326E46                          1212  spawnPlayer1ProjectileRight
+00326E46                          1213      *player projectile is marked right for position update
+00326E46  21FC 00000000 25A2      1214      move.l  #0, Player1ProjectileLeft
+00326E4E                          1215  
+00326E4E                          1216      *If player is powered up, draw the larger
+00326E4E  2038 257A               1217      move.l  Player1ChunkY, d0
+00326E52  0C80 00000000           1218      cmpi.l  #0, d0
+00326E58  6700 0018               1219      BEQ     drawTinyPlayer1ProjectileRight
+00326E5C  41F9 002BAD96           1220      lea     BigBang, a0
+00326E62  43F8 26C2               1221      lea     BigBangSound, a1
+00326E66  7200                    1222      move.l  #0,d1
+00326E68  7400                    1223      move.l  #0,d2
+00326E6A  7049                    1224      move.l  #73,d0
+00326E6C  4E4F                    1225      Trap    #15
+00326E6E                          1226      
+00326E6E  6000 0014               1227      BRA     drawPlayer1ProjectileRight
+00326E72                          1228              
+00326E72                          1229  drawTinyPlayer1ProjectileRight
+00326E72                          1230      *Player is not powered up.  Spawn the smaller projectile
+00326E72  41F9 002B478A           1231      lea     smallBeam, a0
+00326E78                          1232      
+00326E78  43F8 269E               1233      lea     KiBlastSound, a1
+00326E7C  7200                    1234      move.l  #0,d1
+00326E7E  7400                    1235      move.l  #0,d2
+00326E80  7049                    1236      move.l  #73,d0
+00326E82  4E4F                    1237      Trap    #15
+00326E84                          1238      
+00326E84                          1239  drawPlayer1ProjectileRight
+00326E84                          1240      *spawn player to the right of the player sprite
+00326E84  2238 25A6               1241      move.l  Player1ProjectileWidth, d1
+00326E88  2438 25AA               1242      move.l  Player1ProjectileHeight, d2
+00326E8C  21F8 256E 25AE          1243      move.l  Player1X, Player1ProjectileX
+00326E92  2038 25AE               1244      move.l  Player1ProjectileX, d0
+00326E96  D0B8 2566               1245      add.l   Player1Width, d0
+00326E9A  21C0 25AE               1246      move.l  d0, Player1ProjectileX
+00326E9E  2638 25AE               1247      move.l  Player1ProjectileX, d3
+00326EA2  2838 2572               1248      move.l  Player1Y, d4
+00326EA6                          1249      *Shift player Y coordinate to get it out of stored remainder
+00326EA6  E88C                    1250      lsr.l   #FRAC_BITS, d4
+00326EA8  21C4 25B2               1251      move.l  d4, Player1ProjectileY
+00326EAC                          1252      ;add.l   player1ProjectileOffset, player1ProjectileY
+00326EAC  2A38 25B6               1253      move.l  Player1ProjectileYOffset,d5
+00326EB0  DBB8 25B2               1254      add.l   d5, Player1ProjectileY
+00326EB4  2838 25B2               1255      move.l  Player1ProjectileY, d4
+00326EB8  21F8 25A6 25BA          1256      move.l  Player1ProjectileWidth, Player1ProjectileChunkX
+00326EBE  2A38 25BA               1257      move.l  Player1ProjectileChunkX, d5
+00326EC2  2C38 25BE               1258      move.l  Player1ProjectileChunkY, d6
+00326EC6  4EB9 00326A92           1259      jsr     DRAWIMAGE
+00326ECC  4E75                    1260      rts
+00326ECE                          1261      
+00326ECE                          1262  spawnPlayer1ProjectileLeft
+00326ECE                          1263      *else, spawn the projectile left and update the boolean for left
+00326ECE  21FC 00000001 25A2      1264      move.l  #1, Player1ProjectileLeft
+00326ED6                          1265      
+00326ED6  2038 257A               1266      move.l  Player1ChunkY, d0
+00326EDA  0C80 00000000           1267      cmpi.l  #0, d0
+00326EE0  6700 0018               1268      BEQ     drawTinyPlayer1ProjectileLeft
+00326EE4                          1269      
+00326EE4  41F9 002BAD96           1270      lea     BigBang, a0
+00326EEA                          1271      
+00326EEA  43F8 26C2               1272      lea     BigBangSound, a1
+00326EEE  7200                    1273      move.l  #0,d1
+00326EF0  7400                    1274      move.l  #0,d2
+00326EF2  7049                    1275      move.l  #73,d0
+00326EF4  4E4F                    1276      Trap    #15
+00326EF6                          1277      
+00326EF6  6000 0014               1278      BRA     drawPlayer1ProjectileLeft
+00326EFA                          1279          
+00326EFA                          1280  drawTinyPlayer1ProjectileLeft
+00326EFA  41F9 002B478A           1281      lea     smallBeam, a0
+00326F00  43F8 269E               1282      lea     KiBlastSound, a1
+00326F04  7200                    1283      move.l  #0,d1
+00326F06  7400                    1284      move.l  #0,d2
+00326F08  7049                    1285      move.l  #73,d0
+00326F0A  4E4F                    1286      Trap    #15
+00326F0C                          1287  
+00326F0C                          1288  drawPlayer1ProjectileLeft
+00326F0C  2238 25A6               1289      move.l  Player1ProjectileWidth, d1
+00326F10  2438 25AA               1290      move.l  Player1ProjectileHeight, d2
+00326F14  21F8 256E 25AE          1291      move.l  Player1X, Player1ProjectileX
+00326F1A  2038 25AE               1292      move.l  Player1ProjectileX, d0
+00326F1E  90B8 25A6               1293      sub.l   Player1ProjectileWidth, d0
+00326F22  21C0 25AE               1294      move.l  d0, Player1ProjectileX
+00326F26  2638 25AE               1295      move.l  Player1ProjectileX, d3
+00326F2A  2838 2572               1296      move.l  Player1Y, d4
+00326F2E  E88C                    1297      lsr.l   #FRAC_BITS, d4
+00326F30  21C4 25B2               1298      move.l  d4, Player1ProjectileY
+00326F34  2A38 25B6               1299      move.l  Player1ProjectileYOffset,d5
+00326F38  DBB8 25B2               1300      add.l   d5, Player1ProjectileY
+00326F3C  2838 25B2               1301      move.l  Player1ProjectileY, d4
+00326F40  21FC 00000000 25BA      1302      move.l  #0, Player1ProjectileChunkX
+00326F48  2A38 25BA               1303      move.l  Player1ProjectileChunkX, d5
+00326F4C  2C38 25BE               1304      move.l  Player1ProjectileChunkY, d6
+00326F50  4EB9 00326A92           1305      jsr     DRAWIMAGE
+00326F56  4E75                    1306      rts
+00326F58                          1307      
+00326F58                          1308  spawnPlayer2Projectile
+00326F58  21FC 00000001 25FE      1309      move.l  #1, Player2ProjectileActive
+00326F60  2238 25EA               1310      move.l  Player2Left, d1
+00326F64  0C81 00000001           1311      cmpi.l  #1, d1
+00326F6A  6700 008A               1312      BEQ     spawnPlayer2ProjectileLeft
+00326F6E                          1313  spawnPlayer2ProjectileRight
+00326F6E  21FC 00000000 2602      1314      move.l  #0, Player2ProjectileLeft
+00326F76                          1315  
+00326F76                          1316  
+00326F76  2038 25DA               1317      move.l  Player2ChunkY, d0
+00326F7A  0C80 00000000           1318      cmpi.l  #0, d0
+00326F80  6700 0018               1319      BEQ     drawTinyPlayer2ProjectileRight
+00326F84                          1320      
+00326F84  41F9 002B4C40           1321      lea     Kamehameha, a0
+00326F8A                          1322      
+00326F8A  43F8 26AE               1323      lea     KamehamehaSound, a1
+00326F8E  7200                    1324      move.l  #0,d1
+00326F90  7400                    1325      move.l  #0,d2
+00326F92  7049                    1326      move.l  #73,d0
+00326F94  4E4F                    1327      Trap    #15
+00326F96                          1328      
+00326F96  6000 0014               1329      BRA     drawPlayer2ProjectileRight
+00326F9A                          1330      
+00326F9A                          1331      
+00326F9A                          1332      
+00326F9A                          1333  drawTinyPlayer2ProjectileRight
+00326F9A  41F9 002B478A           1334      lea     smallBeam, a0
+00326FA0                          1335      
+00326FA0  43F8 269E               1336      lea     KiBlastSound, a1
+00326FA4  7200                    1337      move.l  #0,d1
+00326FA6  7400                    1338      move.l  #0,d2
+00326FA8  7049                    1339      move.l  #73,d0
+00326FAA  4E4F                    1340      Trap    #15
+00326FAC                          1341      
+00326FAC                          1342  drawPlayer2ProjectileRight
+00326FAC  2238 2606               1343      move.l  Player2ProjectileWidth, d1
+00326FB0  2438 260A               1344      move.l  Player2ProjectileHeight, d2
+00326FB4  21F8 25CE 260E          1345      move.l  Player2X, Player2ProjectileX
+00326FBA  2038 260E               1346      move.l  Player2ProjectileX, d0
+00326FBE  D0B8 25C6               1347      add.l   Player2Width, d0
+00326FC2  21C0 260E               1348      move.l  d0, Player2ProjectileX
+00326FC6  2638 260E               1349      move.l  Player2ProjectileX, d3
+00326FCA  2838 25D2               1350      move.l  Player2Y, d4
+00326FCE  E88C                    1351      lsr.l   #4, d4
+00326FD0  21C4 2612               1352      move.l  d4, Player2ProjectileY
+00326FD4  2A38 2616               1353      move.l  Player2ProjectileYOffset,d5
+00326FD8  DBB8 2612               1354      add.l   d5, Player2ProjectileY
+00326FDC  2838 2612               1355      move.l  Player2ProjectileY, d4
+00326FE0  21F8 2606 261A          1356      move.l  Player2ProjectileWidth, Player2ProjectileChunkX
+00326FE6  2A38 261A               1357      move.l  Player2ProjectileChunkX, d5
+00326FEA  2C38 261E               1358      move.l  Player2ProjectileChunkY, d6
+00326FEE  4EB9 00326A92           1359      jsr     DRAWIMAGE
+00326FF4  4E75                    1360      rts
+00326FF6                          1361  spawnPlayer2ProjectileLeft
+00326FF6  21FC 00000001 2602      1362      move.l  #1, Player2ProjectileLeft
+00326FFE                          1363      
+00326FFE  2038 25DA               1364      move.l  Player2ChunkY, d0
+00327002  0C80 00000000           1365      cmpi.l  #0, d0
+00327008  6700 0018               1366      BEQ     drawTinyPlayer2ProjectileLeft
+0032700C                          1367      
+0032700C  41F9 002B4C40           1368      lea     Kamehameha, a0
+00327012                          1369      
+00327012  43F8 26AE               1370      lea     KamehamehaSound, a1
+00327016  7200                    1371      move.l  #0,d1
+00327018  7400                    1372      move.l  #0,d2
+0032701A  7049                    1373      move.l  #73,d0
+0032701C  4E4F                    1374      Trap    #15
+0032701E                          1375      
+0032701E  6000 0014               1376      BRA     drawPlayer2ProjectileLeft
+00327022                          1377      
+00327022                          1378      
+00327022                          1379      
+00327022                          1380  drawTinyPlayer2ProjectileLeft
+00327022  41F9 002B478A           1381      lea     smallBeam, a0
+00327028                          1382      
+00327028  43F8 269E               1383      lea     KiBlastSound, a1
+0032702C  7200                    1384      move.l  #0,d1
+0032702E  7400                    1385      move.l  #0,d2
+00327030  7049                    1386      move.l  #73,d0
+00327032  4E4F                    1387      Trap    #15
+00327034                          1388  
+00327034                          1389  drawPlayer2ProjectileLeft
+00327034  2238 2606               1390      move.l  Player2ProjectileWidth, d1
+00327038  2438 260A               1391      move.l  Player2ProjectileHeight, d2
+0032703C  21F8 25CE 260E          1392      move.l  Player2X, Player2ProjectileX
+00327042  2038 260E               1393      move.l  Player2ProjectileX, d0
+00327046  90B8 2606               1394      sub.l   Player2ProjectileWidth, d0
+0032704A  21C0 260E               1395      move.l  d0, Player2ProjectileX
+0032704E  2638 260E               1396      move.l  Player2ProjectileX, d3
+00327052  2838 25D2               1397      move.l  Player2Y, d4
+00327056  E88C                    1398      lsr.l   #FRAC_BITS, d4
+00327058  21C4 2612               1399      move.l  d4, Player2ProjectileY
+0032705C  2A38 2616               1400      move.l  Player2ProjectileYOffset,d5
+00327060  DBB8 2612               1401      add.l   d5, Player2ProjectileY
+00327064  2838 2612               1402      move.l  Player2ProjectileY, d4
+00327068  21FC 00000000 261A      1403      move.l  #0, Player2ProjectileChunkX
+00327070  2A38 261A               1404      move.l  Player2ProjectileChunkX, d5
+00327074  2C38 261E               1405      move.l  Player2ProjectileChunkY, d6
+00327078  4EB9 00326A92           1406      jsr     DRAWIMAGE
+0032707E  4E75                    1407      rts
+00327080                          1408  
+00327080                          1409      
+00327080                          1410  
+00327080                          1411  
+00327080                          1412  updateProjectilesBackground
+00327080  2038 259E               1413      move.l  Player1ProjectileActive, d0
+00327084  0C80 00000001           1414      cmpi.l  #1, d0
+0032708A  6600 021C               1415      BNE     exitProjectileUpdate
+0032708E                          1416      
+0032708E  41F8 26DE               1417      lea     BackGround, a0
+00327092  2238 25A6               1418      move.l  Player1ProjectileWidth, d1
+00327096  2438 25AA               1419      move.l  Player1ProjectileHeight, d2
+0032709A  2638 25AE               1420      move.l  Player1ProjectileX, d3
+0032709E  2838 25B2               1421      move.l  Player1ProjectileY, d4
+003270A2  2A38 25AE               1422      move.l  Player1ProjectileX, d5
+003270A6  2C38 25B2               1423      move.l  Player1ProjectileY, d6
+003270AA  4EB9 00326A92           1424      jsr     DRAWIMAGE
+003270B0                          1425      
+003270B0  2038 259E               1426      move.l  Player1ProjectileActive, d0
+003270B4  0C80 00000001           1427      cmpi.l  #1, d0
+003270BA  6600 01EC               1428      BNE     exitProjectileUpdate
+003270BE                          1429  
+003270BE  2038 25A2               1430      move.l  Player1ProjectileLeft, d0
+003270C2  0C80 00000001           1431      cmpi.l  #1, d0
+003270C8  6600 0068               1432      BNE     updateProjectilesPositionRight
+003270CC                          1433  
+003270CC                          1434  updateProjectilesPositionLeft
+003270CC                          1435      
+003270CC                          1436      
+003270CC  2038 25AE               1437      move.l  Player1ProjectileX, d0
+003270D0  90B8 263A               1438      sub.l   ProjectileSpeed, d0
+003270D4  21C0 25AE               1439      move.l  d0, Player1ProjectileX
+003270D8                          1440  
+003270D8  2038 25AE               1441      move.l  Player1ProjectileX, d0
+003270DC  D0B8 25A6               1442      add.l   Player1ProjectileWidth, d0
+003270E0  0C80 00000000           1443      cmpi.l  #0, d0
+003270E6  6E00 000A               1444      BGT     moveProjectileLeft
+003270EA                          1445      
+003270EA  21FC 00000000 259E      1446      move.l  #0, Player1ProjectileActive
+003270F2                          1447  
+003270F2                          1448  moveProjectileLeft
+003270F2  2038 257A               1449      move.l  Player1ChunkY, d0
+003270F6  0C80 00000000           1450      cmpi.l  #0, d0
+003270FC  6700 000C               1451      BEQ     updateTinyPlayer1ProjectileLeft
+00327100                          1452      
+00327100  41F9 002BAD96           1453      lea     BigBang, a0
+00327106  6000 0008               1454      BRA     updateDrawProjectile1Left
+0032710A                          1455      
+0032710A                          1456  updateTinyPlayer1ProjectileLeft
+0032710A  41F9 002B478A           1457      lea     smallBeam, a0
+00327110                          1458  
+00327110                          1459  updateDrawProjectile1Left
+00327110                          1460  
+00327110  2238 25A6               1461      move.l  Player1ProjectileWidth, d1
+00327114  2438 25AA               1462      move.l  Player1ProjectileHeight, d2
+00327118  2638 25AE               1463      move.l  Player1ProjectileX, d3
+0032711C  2838 25B2               1464      move.l  Player1ProjectileY, d4
+00327120  2A38 25BA               1465      move.l  Player1ProjectileChunkX, d5
+00327124  2C38 25BE               1466      move.l  Player1ProjectileChunkY, d6
+00327128  4EB9 00326A92           1467      jsr     DRAWIMAGE
+0032712E                          1468      
+0032712E  6000 0178               1469      BRA     exitProjectileUpdate
+00327132                          1470      
+00327132                          1471  updateProjectilesPositionRight   
+00327132  2038 25AE               1472      move.l  Player1ProjectileX, d0
+00327136  D0B8 263A               1473      add.l   ProjectileSpeed, d0
+0032713A  21C0 25AE               1474      move.l  d0, Player1ProjectileX
+0032713E                          1475  
+0032713E  2038 25AE               1476      move.l  Player1ProjectileX, d0
+00327142  0C80 000002BC           1477      cmpi.l  #700, d0
+00327148  6D00 000A               1478      BLT     moveProjectileRight
+0032714C                          1479      
+0032714C  21FC 00000000 259E      1480      move.l  #0, Player1ProjectileActive
+00327154                          1481  
+00327154                          1482  moveProjectileRight
+00327154  2038 257A               1483      move.l  Player1ChunkY, d0
+00327158  0C80 00000000           1484      cmpi.l  #0, d0
+0032715E  6700 000C               1485      BEQ     updateTinyPlayer1ProjectileRight
+00327162                          1486      
+00327162  41F9 002BAD96           1487      lea     BigBang, a0
+00327168  6000 0008               1488      BRA     updateDrawProjectile1Right
+0032716C                          1489      
+0032716C                          1490  updateTinyPlayer1ProjectileRight
+0032716C  41F9 002B478A           1491      lea     smallBeam, a0
+00327172                          1492  
+00327172                          1493  updateDrawProjectile1Right
+00327172  2238 25A6               1494      move.l  Player1ProjectileWidth, d1
+00327176  2438 25AA               1495      move.l  Player1ProjectileHeight, d2
+0032717A  2638 25AE               1496      move.l  Player1ProjectileX, d3
+0032717E  2838 25B2               1497      move.l  Player1ProjectileY, d4
+00327182  2A38 25BA               1498      move.l  Player1ProjectileChunkX, d5
+00327186  2C38 25BE               1499      move.l  Player1ProjectileChunkY, d6
+0032718A  4EB9 00326A92           1500      jsr     DRAWIMAGE
+00327190                          1501      
+00327190  6000 0116               1502      BRA     exitProjectileUpdate
+00327194                          1503      
+00327194                          1504  updateProjectile2Background
+00327194  2038 25FE               1505      move.l  Player2ProjectileActive, d0
+00327198  0C80 00000001           1506      cmpi.l  #1, d0
+0032719E  6600 0108               1507      BNE     exitProjectileUpdate
+003271A2                          1508  
+003271A2  41F8 26DE               1509      lea     BackGround, a0
+003271A6  2238 2606               1510      move.l  Player2ProjectileWidth, d1
+003271AA  2438 260A               1511      move.l  Player2ProjectileHeight, d2
+003271AE  2638 260E               1512      move.l  Player2ProjectileX, d3
+003271B2  2838 2612               1513      move.l  Player2ProjectileY, d4
+003271B6  2A38 260E               1514      move.l  Player2ProjectileX, d5
+003271BA  2C38 2612               1515      move.l  Player2ProjectileY, d6
+003271BE  4EB9 00326A92           1516      jsr     DRAWIMAGE
+003271C4                          1517      
+003271C4  2038 25FE               1518      move.l  Player2ProjectileActive, d0
+003271C8  0C80 00000001           1519      cmpi.l  #1, d0
+003271CE  6600 00D8               1520      BNE     exitProjectileUpdate
+003271D2                          1521  
+003271D2  2038 2602               1522      move.l  Player2ProjectileLeft, d0
+003271D6  0C80 00000001           1523      cmpi.l  #1, d0
+003271DC  6600 0068               1524      BNE     updateProjectile2PositionRight
+003271E0                          1525  
+003271E0                          1526  updateProjectile2PositionLeft
+003271E0                          1527      
+003271E0                          1528      
+003271E0  2038 260E               1529      move.l  Player2ProjectileX, d0
+003271E4  90B8 263A               1530      sub.l   ProjectileSpeed, d0
+003271E8  21C0 260E               1531      move.l  d0, Player2ProjectileX
+003271EC                          1532  
+003271EC  2038 260E               1533      move.l  Player2ProjectileX, d0
+003271F0  D0B8 2606               1534      add.l   Player2ProjectileWidth, d0
+003271F4  0C80 00000000           1535      cmpi.l  #0, d0
+003271FA  6E00 006C               1536      BGT     moveProjectile2Right
+003271FE                          1537      
+003271FE  21FC 00000000 25FE      1538      move.l  #0, Player2ProjectileActive
+00327206                          1539  
+00327206                          1540  moveProjectile2Left
+00327206  2038 25DA               1541      move.l  Player2ChunkY, d0
+0032720A  0C80 00000000           1542      cmpi.l  #0, d0
+00327210  6700 000C               1543      BEQ     updateTinyPlayer2ProjectileLeft
+00327214                          1544      
+00327214  41F9 002B4C40           1545      lea     Kamehameha, a0
+0032721A  6000 0008               1546      BRA     updateDrawProjectile2Left
+0032721E                          1547      
+0032721E                          1548  updateTinyPlayer2ProjectileLeft
+0032721E  41F9 002B478A           1549      lea     smallBeam, a0
+00327224                          1550  
+00327224                          1551  updateDrawProjectile2Left
+00327224  2238 2606               1552      move.l  Player2ProjectileWidth, d1
+00327228  2438 260A               1553      move.l  Player2ProjectileHeight, d2
+0032722C  2638 260E               1554      move.l  Player2ProjectileX, d3
+00327230  2838 2612               1555      move.l  Player2ProjectileY, d4
+00327234  2A38 261A               1556      move.l  Player2ProjectileChunkX, d5
+00327238  2C38 261E               1557      move.l  Player2ProjectileChunkY, d6
+0032723C  4EB9 00326A92           1558      jsr     DRAWIMAGE
+00327242                          1559      
+00327242  6000 0064               1560      BRA     exitProjectileUpdate
+00327246                          1561      
+00327246                          1562  updateProjectile2PositionRight   
+00327246  2038 260E               1563      move.l  Player2ProjectileX, d0
+0032724A  D0B8 263A               1564      add.l   ProjectileSpeed, d0
+0032724E  21C0 260E               1565      move.l  d0, Player2ProjectileX
+00327252                          1566  
+00327252  2038 260E               1567      move.l  Player2ProjectileX, d0
+00327256  0C80 000002BC           1568      cmpi.l  #700, d0
+0032725C  6D00 000A               1569      BLT     moveProjectile2Right
+00327260                          1570      
+00327260  21FC 00000000 25FE      1571      move.l  #0, Player2ProjectileActive
+00327268                          1572  
+00327268                          1573  moveProjectile2Right
+00327268  2038 25DA               1574      move.l  Player2ChunkY, d0
+0032726C  0C80 00000000           1575      cmpi.l  #0, d0
+00327272  6700 000C               1576      BEQ     updateTinyPlayer2ProjectileRight
+00327276                          1577      
+00327276  41F9 002B4C40           1578      lea     Kamehameha, a0
+0032727C  6000 0008               1579      BRA     updateDrawProjectile2Right
+00327280                          1580      
+00327280                          1581  updateTinyPlayer2ProjectileRight
+00327280  41F9 002B478A           1582      lea     smallBeam, a0
+00327286                          1583  
+00327286                          1584  updateDrawProjectile2Right
+00327286  2238 2606               1585      move.l  Player2ProjectileWidth, d1
+0032728A  2438 260A               1586      move.l  Player2ProjectileHeight, d2
+0032728E  2638 260E               1587      move.l  Player2ProjectileX, d3
+00327292  2838 2612               1588      move.l  Player2ProjectileY, d4
+00327296  2A38 261A               1589      move.l  Player2ProjectileChunkX, d5
+0032729A  2C38 261E               1590      move.l  Player2ProjectileChunkY, d6
+0032729E  4EB9 00326A92           1591      jsr     DRAWIMAGE
+003272A4                          1592      
+003272A4  6000 0002               1593      BRA     exitProjectileUpdate
+003272A8                          1594      
+003272A8                          1595      
+003272A8                          1596      
+003272A8                          1597  exitProjectileUpdate
+003272A8  4E75                    1598      rts
+003272AA                          1599  
+003272AA                          1600   
+003272AA                          1601  
+003272AA                          1602  
+003272AA                          1603  
+003272AA                          1604  
+003272AA                          1605  
+003272AA                          1606  
+003272AA                          1607  
+003272AA                          1608  
+003272AA                          1609  
+003272AA                          1610  
+003272AA                          1611  -------------------- end include --------------------
+003272AA                          1612   include "ProjectileCollision.x68"
+003272AA                          1613  
+003272AA                          1614  CheckProjectileCollision
+003272AA                          1615  
+003272AA                          1616  Player2BeamCollisionDetection
+003272AA                          1617      *Make sure that the projectile is active, otherwise check the next collision detection
+003272AA  2238 259E               1618      move.l  Player1ProjectileActive, d1
+003272AE  0C81 00000001           1619      cmpi.l  #1, d1
+003272B4  6600 004A               1620      BNE     Player1BeamCollisionDetection
+003272B8                          1621  
+003272B8  2238 25CE               1622      move.l  Player2X, d1
+003272BC  2438 25D2               1623      move.l  Player2Y, d2
+003272C0                          1624      *shift remainder bits out of player Y to calculate in the same base
+003272C0  E88A                    1625      lsr.l   #FRAC_BITS, d2
+003272C2  2638 25AE               1626      move.l  Player1ProjectileX, d3
+003272C6  2838 25B2               1627      move.l  Player1ProjectileY, d4
+003272CA                          1628      
+003272CA                          1629      *Compare all four sides of projectile with player 2
+003272CA  D2B8 25C6               1630      add.l   Player2Width, d1 
+003272CE  B641                    1631      cmp     d1, d3
+003272D0  6E00 002E               1632      BGT     Player1BeamCollisionDetection
+003272D4                          1633      
+003272D4  92B8 25C6               1634      sub.l   Player2Width, d1
+003272D8  D6B8 25A6               1635      add.l   Player1ProjectileWidth, d3
+003272DC  B641                    1636      cmp     d1, d3
+003272DE  6D00 0020               1637      BLT     Player1BeamCollisionDetection
+003272E2                          1638      
+003272E2  D4B8 25CA               1639      add.l   Player2Height, d2
+003272E6  B842                    1640      cmp     d2, d4
+003272E8  6E00 0016               1641      BGT     Player1BeamCollisionDetection
+003272EC                          1642      
+003272EC  94B8 25CA               1643      sub.l   Player2Height, d2
+003272F0  D8B8 25AA               1644      add.l   Player1ProjectileHeight, d4
+003272F4  B842                    1645      cmp     d2, d4
+003272F6  6D00 0008               1646      BLT     Player1BeamCollisionDetection
+003272FA                          1647      *if all checks fail, then collision has occured
+003272FA  4EB9 0032742E           1648      jsr     BeamHitPlayer2
+00327300                          1649  
+00327300                          1650  Player1BeamCollisionDetection
+00327300  2238 25FE               1651      move.l  Player2ProjectileActive, d1
+00327304  0C81 00000001           1652      cmpi.l  #1, d1
+0032730A  6600 004A               1653      BNE     BeamToBeamCollisionDetection
+0032730E                          1654  
+0032730E  2238 256E               1655      move.l  Player1X, d1
+00327312  2438 2572               1656      move.l  Player1Y, d2
+00327316  E88A                    1657      lsr.l   #FRAC_BITS, d2
+00327318  2638 260E               1658      move.l  Player2ProjectileX, d3
+0032731C  2838 2612               1659      move.l  Player2ProjectileY, d4
+00327320                          1660      
+00327320  D2B8 2566               1661      add.l   Player1Width, d1 
+00327324  B641                    1662      cmp     d1, d3
+00327326  6E00 002E               1663      BGT     BeamToBeamCollisionDetection
+0032732A                          1664      
+0032732A  92B8 2566               1665      sub.l   Player1Width, d1
+0032732E  D6B8 2606               1666      add.l   Player2ProjectileWidth, d3
+00327332  B641                    1667      cmp     d1, d3
+00327334  6D00 0020               1668      BLT     BeamToBeamCollisionDetection
+00327338                          1669      
+00327338  D4B8 256A               1670      add.l   Player1Height, d2
+0032733C  B842                    1671      cmp     d2, d4
+0032733E  6E00 0016               1672      BGT     BeamToBeamCollisionDetection
+00327342                          1673      
+00327342  94B8 256A               1674      sub.l   Player1Height, d2
+00327346  D8B8 260A               1675      add.l   Player2ProjectileHeight, d4
+0032734A  B842                    1676      cmp     d2, d4
+0032734C  6D00 0008               1677      BLT     BeamToBeamCollisionDetection
+00327350  4EB9 003273B6           1678      jsr     BeamHitPlayer1
+00327356                          1679  
+00327356                          1680  BeamToBeamCollisionDetection
+00327356  2238 25FE               1681      move.l  Player2ProjectileActive, d1
+0032735A  0C81 00000001           1682      cmpi.l  #1, d1
+00327360  6600 01A0               1683      BNE     exitBeamCollisionDetection
+00327364                          1684      
+00327364  2238 259E               1685      move.l  Player1ProjectileActive, d1
+00327368  0C81 00000001           1686      cmpi.l  #1, d1
+0032736E  6600 0192               1687      BNE     exitBeamCollisionDetection
+00327372                          1688  
+00327372  2238 25AE               1689      move.l  Player1ProjectileX, d1
+00327376  2438 25B2               1690      move.l  Player1ProjectileY, d2
+0032737A  2638 260E               1691      move.l  Player2ProjectileX, d3
+0032737E  2838 2612               1692      move.l  Player2ProjectileY, d4
+00327382                          1693      
+00327382  D2B8 25A6               1694      add.l   Player1ProjectileWidth, d1 
+00327386  B641                    1695      cmp     d1, d3
+00327388  6E00 0178               1696      BGT     exitBeamCollisionDetection
+0032738C                          1697      
+0032738C  92B8 25A6               1698      sub.l   Player1ProjectileWidth, d1
+00327390  D6B8 2606               1699      add.l   Player2ProjectileWidth, d3
+00327394  B641                    1700      cmp     d1, d3
+00327396  6D00 016A               1701      BLT     exitBeamCollisionDetection
+0032739A                          1702      
+0032739A  D4B8 25AA               1703      add.l   Player1ProjectileHeight, d2
+0032739E  B842                    1704      cmp     d2, d4
+003273A0  6E00 0160               1705      BGT     exitBeamCollisionDetection
+003273A4                          1706      
+003273A4  94B8 25AA               1707      sub.l   Player1ProjectileHeight, d2
+003273A8  D8B8 260A               1708      add.l   Player2ProjectileHeight, d4
+003273AC  B842                    1709      cmp     d2, d4
+003273AE  6D00 0152               1710      BLT     exitBeamCollisionDetection    
+003273B2  6000 00F2               1711      BRA     BeamsCollided
+003273B6                          1712  
+003273B6                          1713  BeamHitPlayer1
+003273B6                          1714      *Player 1 has been hit.  Subtract the beam damage from health
+003273B6  2238 2586               1715      move.l  Player1Health, d1
+003273BA  92B8 2622               1716      sub.l   Player2ProjectileDamage, d1
+003273BE                          1717      *Check if player health is below 0
+003273BE  0C81 00000000           1718      cmpi.l  #0, d1
+003273C4  6C00 0008               1719      BGE     ContinueBeamHitPlayer1
+003273C8                          1720      * if it is, set health to 0
+003273C8  4EB9 00327504           1721      jsr     SetHealthToZero
+003273CE                          1722  ContinueBeamHitPlayer1  
+003273CE  21C1 2586               1723      move.l  d1, Player1Health
+003273D2  21F8 259A 2576          1724      move.l  Player1DamageSprite, Player1ChunkX
+003273D8                          1725      
+003273D8  21FC 00000000 25FE      1726      move.l  #0, Player2ProjectileActive
+003273E0                          1727      
+003273E0                          1728      *draw background behind player
+003273E0  41F8 26DE               1729      lea     BackGround, a0
+003273E4  2238 2606               1730      move.l  Player2ProjectileWidth, d1
+003273E8  2438 260A               1731      move.l  Player2ProjectileHeight, d2
+003273EC  2638 260E               1732      move.l  Player2ProjectileX, d3
+003273F0  2838 2612               1733      move.l  Player2ProjectileY, d4
+003273F4  2A38 260E               1734      move.l  Player2ProjectileX, d5
+003273F8  2C38 2612               1735      move.l  Player2ProjectileY, d6
+003273FC  4EB9 00326A92           1736      jsr     DRAWIMAGE
+00327402                          1737      *draw updated score for players
+00327402  4EB8 249A               1738      jsr     updateScoreBackGround
+00327406  2038 2586               1739      move.l  Player1Health, d0
+0032740A  2A38 2642               1740      move.l  Player1ScoreX, d5
+0032740E  4EB9 00326B52           1741      jsr     updateHealth
+00327414  2038 25E6               1742      move.l  Player2Health, d0
+00327418  2A38 2646               1743      move.l  Player2ScoreX, d5
+0032741C  4EB9 00326B52           1744      jsr     updateHealth
+00327422                          1745      
+00327422                          1746      *spawn sound of player that was hit
+00327422  7200                    1747      move.l  #0,d1
+00327424  7400                    1748      move.l  #0,d2
+00327426  7049                    1749      move.l  #73,d0
+00327428  4E4F                    1750      Trap    #15
+0032742A                          1751      
+0032742A  6000 00D6               1752      bra     exitBeamCollisionDetection
+0032742E                          1753  
+0032742E                          1754      *perform same logic when player 2 collides with player 1's beam
+0032742E                          1755  BeamHitPlayer2
+0032742E                          1756  
+0032742E  2238 25E6               1757      move.l  Player2Health, d1
+00327432  92B8 25C2               1758      sub.l   Player1ProjectileDamage, d1
+00327436  0C81 00000000           1759      cmpi.l  #0, d1
+0032743C  6C00 0008               1760      BGE     ContinueBeamHitPlayer2
+00327440  4EB9 00327504           1761      jsr     SetHealthToZero
+00327446                          1762  ContinueBeamHitPlayer2  
+00327446  21C1 25E6               1763      move.l  d1, Player2Health
+0032744A  21F8 25FA 25D6          1764      move.l  Player2DamageSprite, Player2ChunkX
+00327450                          1765      
+00327450  21FC 00000000 259E      1766      move.l  #0, Player1ProjectileActive
+00327458                          1767      
+00327458  41F8 26DE               1768      lea     BackGround, a0
+0032745C  2238 25A6               1769      move.l  Player1ProjectileWidth, d1
+00327460  2438 25AA               1770      move.l  Player1ProjectileHeight, d2
+00327464  2638 25AE               1771      move.l  Player1ProjectileX, d3
+00327468  2838 25B2               1772      move.l  Player1ProjectileY, d4
+0032746C  2A38 25AE               1773      move.l  Player1ProjectileX, d5
+00327470  2C38 25B2               1774      move.l  Player1ProjectileY, d6
+00327474  4EB9 00326A92           1775      jsr     DRAWIMAGE
+0032747A                          1776      
+0032747A  4EB8 249A               1777      jsr     updateScoreBackGround
+0032747E  2038 2586               1778      move.l  Player1Health, d0
+00327482  2A38 2642               1779      move.l  Player1ScoreX, d5
+00327486  4EB9 00326B52           1780      jsr     updateHealth
+0032748C  2038 25E6               1781      move.l  Player2Health, d0
+00327490  2A38 2646               1782      move.l  Player2ScoreX, d5
+00327494  4EB9 00326B52           1783      jsr     updateHealth
+0032749A                          1784      
+0032749A                          1785  
+0032749A  7200                    1786      move.l  #0,d1
+0032749C  7400                    1787      move.l  #0,d2
+0032749E  7049                    1788      move.l  #73,d0
+003274A0  4E4F                    1789      Trap    #15
+003274A2                          1790      
+003274A2  6000 005E               1791      bra     exitBeamCollisionDetection
+003274A6                          1792      *if the beams collide, remove them from the scene by drawing over them and then play a sound
+003274A6                          1793  BeamsCollided
+003274A6  21FC 00000000 259E      1794      move.l  #0, Player1ProjectileActive
+003274AE                          1795      
+003274AE  41F8 26DE               1796      lea     BackGround, a0
+003274B2  2238 25A6               1797      move.l  Player1ProjectileWidth, d1
+003274B6  2438 25AA               1798      move.l  Player1ProjectileHeight, d2
+003274BA  2638 25AE               1799      move.l  Player1ProjectileX, d3
+003274BE  2838 25B2               1800      move.l  Player1ProjectileY, d4
+003274C2  2A38 25AE               1801      move.l  Player1ProjectileX, d5
+003274C6  2C38 25B2               1802      move.l  Player1ProjectileY, d6
+003274CA  4EB9 00326A92           1803      jsr     DRAWIMAGE
+003274D0                          1804      
+003274D0  21FC 00000000 25FE      1805      move.l  #0, Player2ProjectileActive
+003274D8                          1806      
+003274D8  41F8 26DE               1807      lea     BackGround, a0
+003274DC  2238 2606               1808      move.l  Player2ProjectileWidth, d1
+003274E0  2438 260A               1809      move.l  Player2ProjectileHeight, d2
+003274E4  2638 260E               1810      move.l  Player2ProjectileX, d3
+003274E8  2838 2612               1811      move.l  Player2ProjectileY, d4
+003274EC  2A38 260E               1812      move.l  Player2ProjectileX, d5
+003274F0  2C38 2612               1813      move.l  Player2ProjectileY, d6
+003274F4  4EB9 00326A92           1814      jsr     DRAWIMAGE
+003274FA                          1815      
+003274FA                          1816  
+003274FA  7200                    1817      move.l  #0,d1
+003274FC  7400                    1818      move.l  #0,d2
+003274FE  7049                    1819      move.l  #73,d0
+00327500  4E4F                    1820      Trap    #15
+00327502                          1821  
+00327502                          1822  exitBeamCollisionDetection
+00327502  4E75                    1823      rts
+00327504                          1824      
+00327504                          1825  SetHealthToZero
+00327504  7200                    1826      move.l  #0, d1
+00327506  4E75                    1827      rts
+00327508                          1828  
+00327508                          1829  
+00327508                          1830  
+00327508                          1831  
+00327508                          1832  
+00327508                          1833  
+00327508                          1834  
+00327508                          1835  
+00327508                          1836  
+00327508                          1837  
+00327508                          1838  
+00327508                          1839  
+00327508                          1840  
+00327508                          1841  -------------------- end include --------------------
+00327508                          1842   include "CheckForPowerUpActivation.x68"
+00327508                          1843  
+00327508                          1844      
+00327508                          1845  CheckForPowerUpActivation
+00327508                          1846      *If the powerUp has been grabbed, exit
+00327508  2038 264E               1847      move.l      PowerUpGrabbed, d0
+0032750C  0C80 00000001           1848      cmpi.l      #1, d0
+00327512  6700 0036               1849      BEQ         exitActivatePowerUp
+00327516                          1850      *Also, exit if the powerup is active
+00327516  2038 263E               1851      move.l      ActivePowerUp, d0
+0032751A  0C80 00000001           1852      cmpi.l      #1, d0
+00327520  6700 0028               1853      BEQ         exitActivatePowerUp
+00327524                          1854      
+00327524                          1855      *Decrement timer until it hits 0.  Then activate the powerup
+00327524                          1856  DecrementTimer
+00327524  2038 264A               1857      move.l      PowerUpActivationTime, d0
+00327528  5380                    1858      sub.l       #1, d0
+0032752A  21C0 264A               1859      move.l      d0, PowerUpActivationTime
+0032752E                          1860      
+0032752E                          1861  CheckTimer
+0032752E  2038 264A               1862      move.l      PowerUpActivationTime, d0
+00327532  0C80 00000000           1863      cmpi.l      #0, d0
+00327538  6E00 0010               1864      BGT         exitActivatePowerUp
+0032753C                          1865      
+0032753C                          1866  ActivatePowerUp
+0032753C  4EB9 0032754C           1867      jsr         DrawDragonBallCall
+00327542  21FC 00000001 263E      1868      move.l      #1, ActivePowerUp
+0032754A                          1869      
+0032754A                          1870  exitActivatePowerUp
+0032754A  4E75                    1871      rts
+0032754C                          1872  
+0032754C                          1873  DrawDragonBallCall
+0032754C  41F9 002AB23E           1874      lea     PowerUp, a0
+00327552  7234                    1875      move.l  #PowerUpSquareLength, d1
+00327554  7434                    1876      move.l  #PowerUpSquareLength, d2
+00327556  2638 2626               1877      move.l  PowerUpX, d3
+0032755A  2838 262A               1878      move.l  PowerUpY, d4
+0032755E  7A00                    1879      move.l  #0, d5
+00327560  7C00                    1880      move.l  #0, d6
+00327562  4EB9 00326A92           1881      jsr     DRAWIMAGE
+00327568  4E75                    1882      rts
+00327568  4E75                    1883  -------------------- end include --------------------
+0032756A                          1884   include "randomNumbers.x68"
+0032756A                          1885  
+0032756A                          1886  ALL_REG                 REG     D0-D7/A0-A6
+0032756A                          1887  
+0032756A  =00000008               1888  GET_TIME_COMMAND        equ     8
+0032756A                          1889  
+0032756A                          1890  
+0032756A                          1891  
+0032756A                          1892  seedRandomNumber
+0032756A  48E7 FFFE               1893          movem.l ALL_REG,-(sp)
+0032756E  4286                    1894          clr.l   d6
+00327570  103C 0008               1895          move.b  #GET_TIME_COMMAND,d0
+00327574  4E4F                    1896          TRAP    #15
+00327576                          1897  
+00327576  23C1 00327602           1898          move.l  d1,RANDOMVAL
+0032757C  4CDF 7FFF               1899          movem.l (sp)+,ALL_REG
+00327580  4E75                    1900          rts
+00327582                          1901  
+00327582                          1902  getRandomByteIntoD6
+00327582  48E7 8000               1903          movem.l d0,-(sp)
+00327586  48E7 4000               1904          movem.l d1,-(sp)
+0032758A  48E7 2000               1905          movem.l d2,-(sp)
+0032758E  2039 00327602           1906          move.l  RANDOMVAL,d0
+00327594  72AF                    1907          moveq   #$AF-$100,d1
+00327596  7412                    1908          moveq   #18,d2
+00327598                          1909  Ninc0   
+00327598  D080                    1910      add.l   d0,d0
+0032759A  6400 0004               1911      bcc Ninc1
+0032759E  B300                    1912      eor.b   d1,d0
+003275A0                          1913  Ninc1
+003275A0  51CA FFF6               1914      dbf d2,Ninc0
+003275A4                          1915      
+003275A4  23C0 00327602           1916      move.l  d0,RANDOMVAL
+003275AA  4286                    1917      clr.l   d6
+003275AC  1C00                    1918      move.b  d0,d6
+003275AE  2A06                    1919      move.l  d6, d5
+003275B0                          1920      
+003275B0                          1921      ;add 5 "seconds" in case the value is 0 and spawns powerup immeadiately
+003275B0  0685 0000012C           1922      add.l   #300, d5
+003275B6  2C05                    1923      move.l  d5, d6
+003275B8                          1924      
+003275B8  4CDF 0004               1925          movem.l (sp)+,d2
+003275BC  4CDF 0002               1926          movem.l (sp)+,d1
+003275C0  4CDF 0001               1927          movem.l (sp)+,d0
+003275C4  4E75                    1928          rts
+003275C6                          1929          
+003275C6                          1930  
+003275C6                          1931  getRandomLongIntoD6
+003275C6  48E7 FFFE               1932          movem.l ALL_REG,-(sp)
+003275CA  4EB9 00327582           1933          jsr     getRandomByteIntoD6
+003275D0  1A06                    1934          move.b  d6,d5
+003275D2  4EB9 00327582           1935          jsr     getRandomByteIntoD6
+003275D8  E18D                    1936          lsl.l   #8,d5
+003275DA  1A06                    1937          move.b  d6,d5
+003275DC  4EB9 00327582           1938          jsr     getRandomByteIntoD6
+003275E2  E18D                    1939          lsl.l   #8,d5
+003275E4  1A06                    1940          move.b  d6,d5
+003275E6  4EB9 00327582           1941          jsr     getRandomByteIntoD6
+003275EC  E18D                    1942          lsl.l   #8,d5
+003275EE  1A06                    1943          move.b  d6,d5
+003275F0  23C5 00327606           1944          move.l  d5,TEMPRANDOMLONG
+003275F6  4CDF 7FFF               1945          movem.l (sp)+,ALL_REG
+003275FA  2C39 00327606           1946          move.l  TEMPRANDOMLONG,d6
+00327600  4E75                    1947          rts
+00327602                          1948  
+00327602                          1949  
+00327602                          1950  RANDOMVAL       ds.l    1
+00327606                          1951  TEMPRANDOMLONG  ds.l    1
+0032760A                          1952  
+0032760A                          1953  
+0032760A                          1954  
+0032760A                          1955  
+0032760A                          1956  
+0032760A                          1957  
+0032760A                          1958  
+0032760A                          1959  
+0032760A                          1960  -------------------- end include --------------------
+0032760A                          1961   include "gravityRoutines.x68"
+0032760A                          1962  
+0032760A                          1963  updatePlayerGravity
+0032760A                          1964          *update position of player due to gravity 
+0032760A  4EB9 00327624           1965          jsr     Player1GravityRoutine
+00327610  4EB9 003276CA           1966          jsr     Player2GravityRoutine
+00327616  4EB9 00327686           1967          jsr     checkForPlayer1Ground
+0032761C  4EB9 0032772A           1968          jsr     checkForPlayer2Ground
+00327622  4E75                    1969          rts
+00327624                          1970  
+00327624                          1971  Player1GravityRoutine
+00327624                          1972          *If the player is still jumping, do not apply gravity
+00327624  103C 0013               1973          move.b          #GET_KEY_INPUT_COMMAND,d0
+00327628  7220                    1974          move.l          #SPACE_KEY,d1
+0032762A  4E4F                    1975          TRAP            #15
+0032762C  0C01 0000               1976          cmpi.b          #0,d1
+00327630  6600 00F6               1977          bne             exitGravity
+00327634  2A38 2582               1978          move.l          Player1Jumping, d5
+00327638  0C85 00000001           1979          cmpi.l          #1, d5
+0032763E  6600 00E8               1980          BNE             exitGravity
+00327642                          1981          *If the player is moving left or right, then do not use the jumping sprite
+00327642  103C 0013               1982          move.b          #GET_KEY_INPUT_COMMAND,d0
+00327646  7241                    1983          move.l          #$41,d1
+00327648  4E4F                    1984          TRAP            #15
+0032764A  0C01 0000               1985          cmpi.b          #0,d1
+0032764E  6600 0018               1986          bne             applyPlayer1Gravity
+00327652                          1987          
+00327652  103C 0013               1988          move.b          #GET_KEY_INPUT_COMMAND,d0
+00327656  7244                    1989          move.l          #$44,d1
+00327658  4E4F                    1990          TRAP            #15
+0032765A  0C01 0000               1991          cmpi.b          #0,d1
+0032765E  6600 0008               1992          bne             applyPlayer1Gravity
+00327662                          1993          
+00327662                          1994          *Change sprite to jumping sprite
+00327662  21F8 2592 2576          1995          move.l          Player1JumpSprite, Player1ChunkX
+00327668                          1996  applyPlayer1Gravity
+00327668                          1997          *ACCELERATION HERE
+00327668                          1998          *add gravity to acceleration and then acceleration to Y position of player every frame
+00327668  2038 2632               1999          move.l          Player1Velocity, d0
+0032766C  223C 0000009C           2000          move.l          #Gravity, d1
+00327672  D081                    2001          add.l           d1, d0
+00327674  21C0 2632               2002          move.l          d0, Player1Velocity        
+00327678  2838 2572               2003          move.l          Player1Y, d4
+0032767C  D8B8 2632               2004          add.l           Player1Velocity, d4
+00327680  21C4 2572               2005          move.l          d4, Player1Y
+00327684  4E75                    2006          rts
+00327686                          2007          
+00327686                          2008  checkForPlayer1Ground
+00327686                          2009      *Check if the velocity added to the position is greater than the ground of the player
+00327686  2838 2572               2010      move.l  Player1Y, d4
+0032768A  D8B8 2632               2011      add.l   Player1Velocity, d4
+0032768E                          2012      *shift right since the Y position is stored while shifted
+0032768E  E84C                    2013      lsr     #FRAC_BITS, d4
+00327690  2A38 262E               2014      move.l  Ground, d5
+00327694  B845                    2015      cmp     d5, d4
+00327696  6E00 0004               2016      BGT     setPlayer1Ground     
+0032769A                          2017      
+0032769A                          2018  returnPlayer1Ground    
+0032769A  4E75                    2019      rts
+0032769C                          2020      
+0032769C                          2021  setPlayer1Ground
+0032769C                          2022      *set player1 Y position to the ground
+0032769C  21FC 00000000 2632      2023      move.l  #0, Player1Velocity
+003276A4  21F8 258E 2576          2024      move.l  Player1IdleSprite, Player1ChunkX
+003276AA  4EB8 2430               2025      jsr     updatePlayersBackGrounds
+003276AE  2838 262E               2026      move.l  Ground, d4
+003276B2  E94C                    2027      lsl     #FRAC_BITS, d4
+003276B4  21C4 2572               2028      move.l  d4, Player1Y
+003276B8  21FC 00000000 2582      2029      move.l  #0, Player1Jumping
+003276C0                          2030      *Play landing sound upon contact
+003276C0  7200                    2031      move.l  #0,d1
+003276C2  7400                    2032      move.l  #0,d2
+003276C4  7049                    2033      move.l  #73,d0
+003276C6  4E4F                    2034      Trap    #15
+003276C8                          2035      
+003276C8  60D0                    2036      bra     returnPlayer1Ground        
+003276CA                          2037          
+003276CA                          2038          
+003276CA                          2039  Player2GravityRoutine
+003276CA  103C 0013               2040          move.b          #GET_KEY_INPUT_COMMAND,d0
+003276CE  7226                    2041          move.l          #$26,d1
+003276D0  4E4F                    2042          TRAP            #15
+003276D2  0C01 0000               2043          cmpi.b          #0,d1
+003276D6  6600 0050               2044          bne             exitGravity
+003276DA                          2045  
+003276DA  2A38 25E2               2046          move.l          Player2Jumping, d5
+003276DE  0C85 00000001           2047          cmpi.l          #1, d5
+003276E4  6600 0042               2048          BNE             exitGravity
+003276E8                          2049          
+003276E8  103C 0013               2050          move.b          #GET_KEY_INPUT_COMMAND,d0
+003276EC  7225                    2051          move.l          #$25,d1
+003276EE  4E4F                    2052          TRAP            #15
+003276F0  0C01 0000               2053          cmpi.b          #0,d1
+003276F4  6600 0018               2054          bne             applyPlayer2Gravity
+003276F8                          2055          
+003276F8  103C 0013               2056          move.b          #GET_KEY_INPUT_COMMAND,d0
+003276FC  7227                    2057          move.l          #$27,d1
+003276FE  4E4F                    2058          TRAP            #15
+00327700  0C01 0000               2059          cmpi.b          #0,d1
+00327704  6600 0008               2060          bne             applyPlayer2Gravity
+00327708                          2061          
+00327708  21F8 25F2 25D6          2062          move.l          Player2JumpSprite, Player2ChunkX
+0032770E                          2063  applyPlayer2Gravity 
+0032770E  2038 2636               2064          move.l          Player2Velocity, d0
+00327712  0680 0000009C           2065          add.l           #Gravity, d0
+00327718  21C0 2636               2066          move.l          d0, Player2Velocity       
+0032771C  2838 25D2               2067          move.l          Player2Y, d4
+00327720  D8B8 2636               2068          add.l           Player2Velocity, d4        
+00327724  21C4 25D2               2069          move.l          d4, Player2Y
+00327728                          2070  exitGravity
+00327728  4E75                    2071          rts
+0032772A                          2072          
+0032772A                          2073  checkForPlayer2Ground
+0032772A  2838 25D2               2074      move.l  Player2Y, d4
+0032772E  D8B8 2636               2075      add.l   Player2Velocity, d4
+00327732  E84C                    2076      lsr     #FRAC_BITS, d4
+00327734  2A38 262E               2077      move.l  Ground, d5
+00327738                          2078      *Player 1 and player 2 have a height difference
+00327738  5B85                    2079      sub.l   #5, d5
+0032773A  B845                    2080      cmp     d5, d4
+0032773C  6E00 0004               2081      BGT     setPlayer2Ground     
+00327740                          2082      
+00327740                          2083  returnPlayer2Ground    
+00327740  4E75                    2084      rts
+00327742                          2085      
+00327742                          2086  setPlayer2Ground
+00327742  21FC 00000000 2636      2087      move.l  #0, Player2Velocity
+0032774A  21F8 25EE 25D6          2088      move.l  Player2IdleSprite, Player2ChunkX
+00327750  4EB8 2430               2089      jsr     updatePlayersBackGrounds
+00327754  2838 262E               2090      move.l  Ground, d4
+00327758  0484 0000000A           2091      sub.l   #10, d4
+0032775E  E94C                    2092      lsl     #FRAC_BITS, d4
+00327760  21C4 25D2               2093      move.l  d4, Player2Y
+00327764  21FC 00000000 25E2      2094      move.l  #0, Player2Jumping
+0032776C                          2095      
+0032776C  7400                    2096      move.l  #0,d2
+0032776E  7049                    2097      move.l  #73,d0
+00327770  4E4F                    2098      Trap    #15
+00327772                          2099      
+00327772  60CC                    2100      bra     returnPlayer2Ground
+00327774                          2101  
+00327774                          2102  
+00327774                          2103  
+00327774                          2104  
+00327774                          2105  
+00327774                          2106  
+00327774                          2107  
+00327774                          2108  
+00327774                          2109  
+00327774                          2110  -------------------- end include --------------------
+00327774                          2111      
+00327774                          2112     
+00327774                          2113  
+00327774                          2114  QUIT
+00327774                          2115      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ACCOUNTFORPADDING   326AE0
+ACTIVATEPOWERUP     32753C
+ACTIVEPOWERUP       263E
+ADIGITROUTINE       326C60
+ALL_REG             7FFF
+APPLYPLAYER1GRAVITY  327668
+APPLYPLAYER2GRAVITY  32770E
+BACKGROUND          26DE
+BATTLEMUSIC         2666
+BDIGITROUTINE       326C38
+BEAMHITPLAYER1      3273B6
+BEAMHITPLAYER2      32742E
+BEAMSCOLLIDED       3274A6
+BEAMTOBEAMCOLLISIONDETECTION  327356
+BIGBANG             2BAD96
+BIGBANGSOUND        26C2
+CALLFUNCTION        326B2E
+CDIGITROUTINE       326C10
+CHECKFORPLAYER1GROUND  327686
+CHECKFORPLAYER2GROUND  32772A
+CHECKFORPLAYERCOLLISION  326CBC
+CHECKFORPOWERUPACTIVATION  327508
+CHECKPROJECTILECOLLISION  3272AA
+CHECKTIMER          32752E
+CONTINUEBEAMHITPLAYER1  3273CE
+CONTINUEBEAMHITPLAYER2  327446
+DDIGITROUTINE       326BE8
+DEADPLAYER1         3245B8
+DEADPLAYER2         3257BE
+DECREMENTTIMER      327524
+DOWN_KEY            28
+DRAWCHUNK           3269C4
+DRAWDIGITPOSITION   326C8C
+DRAWDRAGONBALLCALL  32754C
+DRAWIMAGE           326A92
+DRAWPIXEL           326A78
+DRAWPIXELCODE       52
+DRAWPLAYER1HEALTH   2412
+DRAWPLAYER1PROJECTILELEFT  326F0C
+DRAWPLAYER1PROJECTILERIGHT  326E84
+DRAWPLAYER2CALL     23DE
+DRAWPLAYER2PROJECTILELEFT  327034
+DRAWPLAYER2PROJECTILERIGHT  326FAC
+DRAWPLAYERCALL      23AA
+DRAWPLAYERS         24FA
+DRAWTINYPLAYER1PROJECTILELEFT  326EFA
+DRAWTINYPLAYER1PROJECTILERIGHT  326E72
+DRAWTINYPLAYER2PROJECTILELEFT  327022
+DRAWTINYPLAYER2PROJECTILERIGHT  326F9A
+EDIGITROUTINE       326BC0
+EIGHTDIGIT          326CB4
+ENDROUTINE          326A90
+EXITACTIVATEPOWERUP  32754A
+EXITBEAMCOLLISIONDETECTION  327502
+EXITCOLLISION       326E2E
+EXITGRAVITY         327728
+EXITPROJECTILEUPDATE  3272A8
+FDIGITROUTINE       326B98
+FINISHHEALTH        326C92
+FIVEDIGIT           326CA8
+FOURDIGIT           326CA4
+FRAC_BITS           4
+GAMELOOP            21F4
+GDIGITROUTINE       326B72
+GETRANDOMBYTEINTOD6  327582
+GETRANDOMLONGINTOD6  3275C6
+GET_KEY_INPUT_COMMAND  13
+GET_TIME_COMMAND    8
+GET_USER_INPUT_COMMAND  13
+GOKU                28F832
+GRAVITY             9C
+GROUND              262E
+INCREMENT           326A36
+INCREMENTY          326A6A
+INITPLAYERINPUT     326B0A
+INNERLOOP           326A08
+INPUTLOOP           326B0C
+JUMPSOUND           26D2
+KAMEHAMEHA          2B4C40
+KAMEHAMEHASOUND     26AE
+KIBLASTSOUND        269E
+LEFT_KEY            25
+LOADINGIMAGE        136148
+MOVEPROJECTILE2LEFT  327206
+MOVEPROJECTILE2RIGHT  327268
+MOVEPROJECTILELEFT  3270F2
+MOVEPROJECTILERIGHT  327154
+NINC0               327598
+NINC1               3275A0
+NINEDIGIT           326CB8
+NOCALL              326B24
+NOFUNCPTR           326B4C
+ONEDIGIT            326C98
+OUTERLOOP           3269FA
+PADDING             326B06
+PENCOLORCODE        50
+PLAYER1BEAMCOLLISIONDETECTION  327300
+PLAYER1BEAMSPRITE   2596
+PLAYER1CHUNKX       2576
+PLAYER1CHUNKY       257A
+PLAYER1COLLISION    326D1C
+PLAYER1DAMAGESPRITE  259A
+PLAYER1GRAVITYROUTINE  327624
+PLAYER1HEALTH       2586
+PLAYER1HEALTHIMAGE  2A1568
+PLAYER1HEIGHT       256A
+PLAYER1IDLESPRITE   258E
+PLAYER1JUMPING      2582
+PLAYER1JUMPSPRITE   2592
+PLAYER1LEFT         258A
+PLAYER1PROJECTILEACTIVE  259E
+PLAYER1PROJECTILECHUNKX  25BA
+PLAYER1PROJECTILECHUNKY  25BE
+PLAYER1PROJECTILEDAMAGE  25C2
+PLAYER1PROJECTILEHEIGHT  25AA
+PLAYER1PROJECTILELEFT  25A2
+PLAYER1PROJECTILEWIDTH  25A6
+PLAYER1PROJECTILEX  25AE
+PLAYER1PROJECTILEY  25B2
+PLAYER1PROJECTILEYOFFSET  25B6
+PLAYER1SCOREX       2642
+PLAYER1SPEED        257E
+PLAYER1STARTSPRITEX  A0
+PLAYER1VELOCITY     2632
+PLAYER1WIDTH        2566
+PLAYER1WINLOOP      22E2
+PLAYER1WINROUTINE   224C
+PLAYER1WINSBANNER   2BDCAC
+PLAYER1X            256E
+PLAYER1Y            2572
+PLAYER2BEAMCOLLISIONDETECTION  3272AA
+PLAYER2BEAMSPRITE   25F6
+PLAYER2CHUNKX       25D6
+PLAYER2CHUNKY       25DA
+PLAYER2DAMAGESPRITE  25FA
+PLAYER2GRAVITYROUTINE  3276CA
+PLAYER2HEALTH       25E6
+PLAYER2HEALTHIMAGE  2AD224
+PLAYER2HEIGHT       25CA
+PLAYER2IDLESPRITE   25EE
+PLAYER2JUMPING      25E2
+PLAYER2JUMPSPRITE   25F2
+PLAYER2LEFT         25EA
+PLAYER2PROJECTILEACTIVE  25FE
+PLAYER2PROJECTILECHUNKX  261A
+PLAYER2PROJECTILECHUNKY  261E
+PLAYER2PROJECTILEDAMAGE  2622
+PLAYER2PROJECTILEHEIGHT  260A
+PLAYER2PROJECTILELEFT  2602
+PLAYER2PROJECTILEWIDTH  2606
+PLAYER2PROJECTILEX  260E
+PLAYER2PROJECTILEY  2612
+PLAYER2PROJECTILEYOFFSET  2616
+PLAYER2SCOREX       2646
+PLAYER2SPEED        25DE
+PLAYER2STARTSPRITEX  81
+PLAYER2VELOCITY     2636
+PLAYER2WIDTH        25C6
+PLAYER2WINLOOP      2388
+PLAYER2WINROUTINE   22F6
+PLAYER2WINSBANNER   2F1132
+PLAYER2X            25CE
+PLAYER2Y            25D2
+POWERUP             2AB23E
+POWERUPACTIVATIONTIME  264A
+POWERUPGRABBED      264E
+POWERUPPLAYER1      326D6A
+POWERUPPLAYER2      326DCC
+POWERUPSQUARELENGTH  34
+POWERUPX            2626
+POWERUPY            262A
+PROJECTILESPEED     263A
+QUIT                327774
+RANDOMVAL           327602
+RESETBATTLEVARIABLES  205A
+RETURNPLAYER1GROUND  32769A
+RETURNPLAYER2GROUND  327740
+RIGHT_KEY           27
+RUNPROGRAM          326AE8
+SCREENCHANGECODE    21
+SEEDRANDOMNUMBER    32756A
+SETHEALTHTOZERO     327504
+SETPLAYER1GROUND    32769C
+SETPLAYER2GROUND    327742
+SEVENDIGIT          326CB0
+SIXDIGIT            326CAC
+SMALLBEAM           2B478A
+SPACE_KEY           20
+SPAWNPLAYER1PROJECTILE  326E30
+SPAWNPLAYER1PROJECTILELEFT  326ECE
+SPAWNPLAYER1PROJECTILERIGHT  326E46
+SPAWNPLAYER2PROJECTILE  326F58
+SPAWNPLAYER2PROJECTILELEFT  326FF6
+SPAWNPLAYER2PROJECTILERIGHT  326F6E
+START               2000
+SUPERGOKU           268A
+SUPERVEGETA         2676
+TEMPRANDOMLONG      327606
+THREEDIGIT          326CA0
+TITLELOOP           21CA
+TITLEMUSIC          2652
+TITLESCREEN         14A092
+TWODIGIT            326C9C
+UPDATEDRAWPROJECTILE1LEFT  327110
+UPDATEDRAWPROJECTILE1RIGHT  327172
+UPDATEDRAWPROJECTILE2LEFT  327224
+UPDATEDRAWPROJECTILE2RIGHT  327286
+UPDATEHEALTH        326B52
+UPDATEPLAYERGRAVITY  32760A
+UPDATEPLAYERSBACKGROUNDS  2430
+UPDATEPOWERUPBACKGROUND  24D0
+UPDATEPROJECTILE2BACKGROUND  327194
+UPDATEPROJECTILE2POSITIONLEFT  3271E0
+UPDATEPROJECTILE2POSITIONRIGHT  327246
+UPDATEPROJECTILESBACKGROUND  327080
+UPDATEPROJECTILESBACKGROUNDS  239C
+UPDATEPROJECTILESPOSITIONLEFT  3270CC
+UPDATEPROJECTILESPOSITIONRIGHT  327132
+UPDATESCOREBACKGROUND  249A
+UPDATETINYPLAYER1PROJECTILELEFT  32710A
+UPDATETINYPLAYER1PROJECTILERIGHT  32716C
+UPDATETINYPLAYER2PROJECTILELEFT  32721E
+UPDATETINYPLAYER2PROJECTILERIGHT  327280
+UP_KEY              26
+VEGETA              27DAFC
+ZERODIGIT           326C94

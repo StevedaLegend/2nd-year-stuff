@@ -1,0 +1,72 @@
+/* Print out the background page  */
+body {
+
+	background-image: url(Background.png);
+	background-repeat: no-repeat;
+	background-size: 1920px 1090px;
+}
+
+/* Form which puts the text in the center with a black border*/
+form {
+    margin: auto;
+    width: 40%;
+    height: 50%;
+    border: solid black;
+    text-align: centre;
+}
+
+/* Login with the background yellow and the color black*/
+.nologin {
+    width: 80%;
+    margin: 40px auto;
+    border: 3px solid blue;
+    background: yellow;
+    font-size: 80px;
+    font-weight: 800;
+    font-family: monospace;
+    font-variant: small-caps;
+    text-align: center;
+    color: black;
+    padding: 40;
+}
+
+/* Heading 1 Font is black and aglined to the center*/
+h1 {
+    font-variant: normal;
+    color: black;
+    text-align: center;
+}
+
+/* Heading 3 font size is 2 and the text color is light blue*/
+h3 {
+    font-size: 2em;
+    color: lightblue;
+    text-align: center;
+}
+
+/* Heading 2 color is darkred and the font size is 1.5 */
+h2 {
+    font-size: 1.5em;
+    color: darkred;
+    text-align: center;
+}
+
+/* Error message is text aglined center and the font size is 2 and color is dark blue */
+.errorstyle {
+    font-size: 2em;
+    color: darkblue;
+    text-align: center;
+
+}
+
+/* Label position is absolute and the text aglin is right with a width of 130px*/
+label {
+    position: absolute;
+    text-align: right;
+    width: 130px;
+}
+
+/* Input margin is lefy with a 140px */
+input {
+    margin-left: 140px;
+}

@@ -1,0 +1,42 @@
+/* 
+    Name: Kyle Kinsella
+    Purpose of screen: Style the delete a Customer .html.php file
+    Student ID, name and date written: C00273146, Kyle Kinsella, 7/3/23 
+*/
+
+
+h1 {
+    text-align: center;
+    font-size: 20px;
+    font-style: italic;
+}
+
+h4 {
+    text-align: center;
+    font-size: 15px;
+    font-style: italic;
+}
+
+.customerId, .name, .DOB, .email, .phoneNum, .accountBalance {
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+    font-size: 20px;
+}
+
+.deleteCustForm {
+    border: 5px solid #348C31;
+    text-align: center;
+    padding: 5px;
+    max-width: 500px; 
+	margin: 0 auto !important; /*The !important keyword is used to override any other styles that may be applied to these elements.*/
+	float: none !important; /*The !important keyword is used to override any other styles that may be applied to these elements.*/
+
+    margin-bottom: 10px;
+}
+
+
+.removed {
+    text-align: center;
+    color: red;;
+}
